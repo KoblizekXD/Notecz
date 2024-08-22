@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Permission {
+  CREATE_POST // can create a new post
+  MANAGE_POST // can edit/update own posts
+  MODIFY_PROFILE // can edit/update own profile
+  CREATE_COMMENT // can create a new comment
+}
+
+model Note {
+  id       Int     @id @default(autoincrement())
+  title    String  
+  content  String?
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+}
+
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  email       String   @unique
+  name        String?
+  password    String
+  permissions Permission[] @default([CREATE_POST, MANAGE_POST, MODIFY_PROFILE, CREATE_COMMENT])
+  notes       Note[]
+}
