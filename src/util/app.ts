@@ -1,6 +1,6 @@
 import Elysia, { error as logErr } from "elysia";
 import { jwt, JWTPayloadSpec } from "@elysiajs/jwt";
-import { Permission } from "@prisma/client";
+import { Permission, User } from "@prisma/client";
 import { prisma } from "..";
 
 type jwtManager = {
@@ -37,14 +37,25 @@ export class AuthManager {
    * @param permissions permissions required to access the route.
    * @returns {boolean} Whether the user is authorized.
    */
-  public async authorized(permissions: Permission[] = []): Promise<boolean> {
+  public async authorized(permissions: Permission[] = []): Promise<User> {
     const token = await this.jwtManager.verify(this.authorization);
     if (!token) throw new AuthError(permissions);
 
     const user = await prisma.user.findUnique({ where: { email: token.sub } });
     if (!user || user.permissions.every(item => permissions.includes(item))) throw new AuthError(permissions);
 
-    return true;
+    return user;
+  }
+
+  /**
+   * Gets the user accessing the route, this step also verifies the token.
+   * @returns {Promise<User | null>} The user accessing the route.
+   */
+  public async getAccessingUser(): Promise<User | null> {
+    const token = await this.jwtManager.verify(this.authorization);
+    if (!token) throw new AuthError();
+
+    return await prisma.user.findUnique({ where: { email: token.sub } });
   }
 }
 
