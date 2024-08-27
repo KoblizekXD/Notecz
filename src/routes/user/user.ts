@@ -1,19 +1,22 @@
-import Elysia, { error } from "elysia";
+import Elysia, { error, t } from "elysia";
 import { AppModule } from "../../util/app";
 import { prisma } from "../..";
 
 export const user = new Elysia()
   .use(AppModule)
   .get('/:id', async ({ params }) => {
-    console.log('x');
     const res = await prisma.user.findUnique({ 
       where: {
         id: params.id
       },
       select: {
-        _count: {
+        id: true,
+        username: true,
+        name: true,
+        notes: {
           select: {
-            notes: true
+            id: true,
+            title: true
           }
         }
       }
@@ -21,4 +24,8 @@ export const user = new Elysia()
     
     if (res === null) return error('Not Found', { message: 'User not found.', id: params.id });
     return res;
+  }, {
+    params: t.Object({
+      id: t.String({ minLength: 1 })
+    })
   });

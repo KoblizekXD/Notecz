@@ -1,5 +1,5 @@
 import { Elysia, error, t } from "elysia";
-import { prisma } from "../..";
+import { logger, prisma } from "../..";
 import { AppModule } from "../../util/app";
 import { Permission } from "@prisma/client";
 
@@ -19,6 +19,7 @@ export const notes = new Elysia()
   .post('/', async ({ body, authManager }) => {
     const user = await authManager.authorized([Permission.CREATE_POST]);
 
+    logger.info(`${user.username}: Creating new note: ${body.title}`);
     const res = await prisma.note.create({
       data: {
         title: body.title,
