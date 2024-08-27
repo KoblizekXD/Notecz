@@ -11,10 +11,70 @@ export const notes = new Elysia()
     if (isNaN(count) || isNaN(offset)) return error('Bad Request', { message: 'Invalid count or offset, expecting an integer.' });
     return {
       notes: await prisma.note.findMany({
-        take: count, skip: offset
+        take: count, skip: offset, omit: { content: true }
       }),
       total: await prisma.note.count()
     };
+  }, {
+    detail: {
+      tags: ['Notes'],
+      responses: {
+        200: {
+          description: 'Request was sucessful, response body contains notes and total count of notes',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  notes: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: {
+                          type: 'integer',
+                          description: 'Unique identifier of the note'
+                        },
+                        title: {
+                          type: 'string',
+                          description: 'Title of the note'
+                        }
+                      }
+                    }
+                  },
+                  total: {
+                    type: 'integer',
+                    description: 'Total number of notes in the database'
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      parameters: [
+        {
+          name: 'count',
+          in: 'query',
+          description: 'Number of notes to fetch, defaults to 12, if missing',
+          required: false,
+          schema: {
+            type: 'integer'
+          },
+          example: 12
+        },
+        {
+          name: 'offset',
+          in: 'query',
+          description: 'Number of notes to skip, defaults to 0, if missing',
+          required: false,
+          schema: {
+            type: 'integer'
+          },
+          example: 12
+        }
+      ]
+    }
   })
   .post('/', async ({ body, authManager }) => {
     const user = await authManager.authorized([Permission.CREATE_POST]);
@@ -36,5 +96,19 @@ export const notes = new Elysia()
     body: t.Object({
       title: t.String({ minLength: 5, maxLength: 35 }),
       content: t.String({ minLength: 20, maxLength: 5000 }),
-    })
+    }),
+    detail: {
+      tags: ['Notes'],
+      responses: {
+        201: {
+          description: 'New note was created succesfully',
+        },
+        401: {
+          description: 'User was not authenticated or didn\'t have sufficient permissions to access this route',
+        },
+        422: {
+          description: 'Request body validation failed, see the response body for more information'
+        }
+      }
+    },
   })

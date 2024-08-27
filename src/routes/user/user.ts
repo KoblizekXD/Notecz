@@ -27,5 +27,23 @@ export const user = new Elysia()
   }, {
     params: t.Object({
       id: t.String({ minLength: 1 })
-    })
+    }),
+    detail: {
+      tags: ['User'],
+      description: 'Returns information about a user specified by their ID',
+      parameters: [{
+        name: 'id',
+        in: 'path',
+        description: 'Unique identifier of the user, the format used for identifiers is CUID',
+        required: true
+      }],
+      responses: {
+        200: {
+          description: 'Request was successful, the response body will contain information about the user and their notes'
+        },
+        404: {
+          description: 'User not found, the response body will contain an error message'
+        }
+      }
+    }
   });
