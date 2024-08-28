@@ -2,7 +2,7 @@ name: Deploy image to ghcr.io and Coolify
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   amd64:
     runs-on: ubuntu-latest
