@@ -70,7 +70,7 @@ export const auth = new Elysia()
       }
     }
   })
-  .post('/signin', async ({ body, jwt, set }) => {
+  .post('/signin', async ({ body, jwt }) => {
     const user = await findByEmail(body.email);
 
     if (!user || !await password.verify(body.password, user.password)) {
