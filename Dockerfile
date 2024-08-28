@@ -10,7 +10,7 @@ RUN chmod 777 /app
 # USER appuser
 
 COPY package.json bun.lockb ./
-COPY /prisma  ./
+COPY ./prisma/  ./
 #TODO: na produkci nestahovat devdependencies
 RUN bun install --production
 
