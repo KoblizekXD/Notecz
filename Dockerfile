@@ -1,17 +1,20 @@
-FROM oven/bun
+FROM oven/bun:debian
+
+# Run as a non-privileged user
+RUN useradd -ms /bin/bash -u 1001 appuser
+USER appuser
 
 WORKDIR /app
-
-COPY package.json .
-COPY bun.lockb .
-
+COPY package.json bun.lockb ./
+#TODO: na produkci nestahovat devdependencies
 RUN bun install --production
 
-COPY src src
-COPY tsconfig.json .
-# COPY public public
+# Copy source files into application directory
+COPY --chown=appuser:appuser /src /app/src
 
-ENV NODE_ENV production
-CMD ["bun", "src/index.ts"]
+# set env
+ENV PORT=3000
+ENV NODE_ENV=production
 
-EXPOSE 3000
+#TODO: ne
+# COPY .env.local ./ 
