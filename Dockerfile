@@ -22,4 +22,5 @@ ENV NODE_ENV=production
 
 #TODO: ne
 # COPY .env.local ./ 
-CMD ["bunx", "prisma", "migrate", "deploy", " && ", "bun", "src/index.ts"]
+# "bunx", "prisma", "migrate", "deploy", " && ", 
+CMD ["bun", "run", "prod"]
