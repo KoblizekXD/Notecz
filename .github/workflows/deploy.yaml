@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  amd64:
+  arm:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -28,7 +28,7 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          platforms: linux/amd64
+          platforms: linux/arm64
           push: true
           tags: ${{ env.REGISTRY }}/koblizekxd/notecz-elysia:latest
       - name: Deploy to Coolify
