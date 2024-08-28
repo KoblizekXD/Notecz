@@ -22,5 +22,4 @@ ENV NODE_ENV=production
 
 #TODO: ne
 # COPY .env.local ./ 
-RUN bunx prisma migrate deploy
-CMD ["bun", "src/index.ts"]
+CMD ["bunx", "prisma", "migrate", "deploy", " && ", "bun", "src/index.ts"]
