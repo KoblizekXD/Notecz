@@ -1,16 +1,20 @@
 FROM oven/bun:debian
 
-# Run as a non-privileged user
-RUN useradd -ms /bin/bash -u 1001 appuser
-USER appuser
-
+# FUCK YOU
+USER root
 WORKDIR /app
+RUN chmod 777 /app
+
+# Run as a non-privileged user
+# RUN useradd -ms /bin/bash -u 1001 appuser
+# USER appuser
+
 COPY package.json bun.lockb ./
 #TODO: na produkci nestahovat devdependencies
 RUN bun install --production
 
 # Copy source files into application directory
-COPY --chown=appuser:appuser /src /app/src
+COPY --chown=root /src /app/src
 
 # set env
 ENV PORT=3000
