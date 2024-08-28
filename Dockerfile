@@ -1,30 +1,20 @@
-FROM debian:11.6-slim as builder
+FROM oven/bun:debian
+
+# Run as a non-privileged user
+RUN useradd -ms /bin/bash -u 1001 appuser
+USER appuser
 
 WORKDIR /app
+COPY package.json bun.lockb ./
+#TODO: na produkci nestahovat devdependencies
+RUN bun install --production
 
-RUN apt update
-RUN apt install curl unzip -y
+# Copy source files into application directory
+COPY --chown=appuser:appuser /src /app/src
 
-RUN curl https://bun.sh/install | bash
+# set env
+ENV PORT=8000
+ENV NODE_ENV=dev
 
-COPY package.json .
-COPY bun.lockb .
-
-RUN /root/.bun/bin/bun install --production
-
-# ? -------------------------
-FROM gcr.io/distroless/base
-
-WORKDIR /app
-
-COPY --from=builder /root/.bun/bin/bun bun
-COPY --from=builder /app/node_modules node_modules
-
-COPY src src
-COPY tsconfig.json .
-# COPY public public
-
-ENV NODE_ENV production
-CMD ["./bun", "src/index.ts"]
-
-EXPOSE 3000
+#TODO: ne
+COPY .env.local ./ 
