@@ -2,7 +2,6 @@ import Elysia, { error } from "elysia";
 import { Permission, PrismaClient } from "@prisma/client";
 
 import { pino } from "pino";
-import { jwt } from '@elysiajs/jwt'
 
 import { auth } from "./routes/auth/auth";
 import { AppModule } from "./util/app";

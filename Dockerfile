@@ -14,8 +14,7 @@ RUN chmod 777 /app
 COPY package.json bun.lockb ./
 RUN bun install --production
 COPY ./prisma/ ./prisma/
-COPY --chown=root . .
-RUN bunx prisma generate --no-engine
+RUN bunx prisma generate
 
 # Copy source files into application directory
 COPY --chown=root /src /app/src
