@@ -1,4 +1,6 @@
-FROM oven/bun:debian
+ARG BUN_VERSION=1.1.13
+ARG NODE_VERSION=20.12.2
+FROM imbios/bun-node:${BUN_VERSION}-${NODE_VERSION}-slim
 
 # FUCK YOU
 USER root
@@ -10,9 +12,10 @@ RUN chmod 777 /app
 # USER appuser
 
 COPY package.json bun.lockb ./
-COPY ./prisma/ ./prisma/
-#TODO: na produkci nestahovat devdependencies
 RUN bun install --production
+COPY ./prisma/ ./prisma/
+COPY --chown=root . .
+RUN bunx prisma generate --no-engine
 
 # Copy source files into application directory
 COPY --chown=root /src /app/src
