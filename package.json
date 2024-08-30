@@ -9,10 +9,12 @@
   "dependencies": {
     "@elysiajs/jwt": "^1.1.0",
     "@elysiajs/swagger": "^1.1.1",
-    "prisma": "^5.18.0",
+    "@lucia-auth/adapter-prisma": "^4.0.1",
     "@prisma/client": "^5.18.0",
     "elysia": "latest",
-    "pino": "^9.3.2"
+    "lucia": "^3.2.0",
+    "pino": "^9.3.2",
+    "prisma": "^5.18.0"
   },
   "devDependencies": {
     "bun-types": "latest"

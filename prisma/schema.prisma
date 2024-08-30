@@ -19,7 +19,7 @@ model Note {
   id       Int     @id @default(autoincrement())
   title    String  
   content  String?
-  author   User   @relation(fields: [authorId], references: [id])
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId String
 }
 
@@ -31,4 +31,13 @@ model User {
   password    String
   permissions Permission[] @default([CREATE_POST, MANAGE_POST, MODIFY_PROFILE, CREATE_COMMENT])
   notes       Note[]
+  sessions    Session[]
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 }

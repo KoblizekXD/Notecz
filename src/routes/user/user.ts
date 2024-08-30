@@ -5,7 +5,7 @@ import { prisma } from "../..";
 export const user = new Elysia()
   .use(AppModule)
   .get('/:id', async ({ params }) => {
-    const res = await prisma.user.findUnique({ 
+    const res = await prisma.user.findUnique({
       where: {
         id: params.id
       },
@@ -21,7 +21,7 @@ export const user = new Elysia()
         }
       }
     });
-    
+
     if (res === null) return error('Not Found', { message: 'User not found.', id: params.id });
     return res;
   }, {
@@ -43,6 +43,80 @@ export const user = new Elysia()
         },
         404: {
           description: 'User not found, the response body will contain an error message'
+        }
+      }
+    }
+  })
+  .get('/:id/notes', async ({ params }) => {
+    const res = await prisma.user.findUnique({
+      where: {
+        id: params.id
+      },
+      select: {
+        notes: {
+          select: {
+            id: true,
+            title: true
+          }
+        }
+      }
+    });
+
+    if (res === null) return error('Not Found', { message: 'User not found.', id: params.id });
+    return res.notes;
+  }, {
+    detail: {
+      description: 'Fetches notes created by a user specified by their ID',
+      tags: ['User', 'Notes'],
+      parameters: [{
+        name: 'id',
+        in: 'path',
+        description: 'Unique identifier of the user, the format used for identifiers is CUID',
+        required: true
+      }],
+      responses: {
+        200: {
+          description: 'Request was successful, the response body will contain notes created by the user',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: {
+                      type: 'integer',
+                      description: 'Unique identifier of the note'
+                    },
+                    title: {
+                      type: 'string',
+                      description: 'Title of the note'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        404: {
+          description: 'User was not found, the response body will contain an error message',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: {
+                    type: 'string',
+                    description: 'Error message'
+                  },
+                  id: {
+                    type: 'string',
+                    description: 'User ID'
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

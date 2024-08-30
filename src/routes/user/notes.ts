@@ -17,6 +17,7 @@ export const notes = new Elysia()
     };
   }, {
     detail: {
+      description: 'Fetches number of existing notes, without their content',
       tags: ['Notes'],
       responses: {
         200: {
@@ -98,6 +99,7 @@ export const notes = new Elysia()
       content: t.String({ minLength: 20, maxLength: 5000 }),
     }),
     detail: {
+      description: 'Creates a new note',
       tags: ['Notes'],
       responses: {
         201: {

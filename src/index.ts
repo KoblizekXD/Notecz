@@ -1,5 +1,5 @@
-import Elysia, { error } from "elysia";
-import { Permission, PrismaClient } from "@prisma/client";
+import Elysia from "elysia";
+import { PrismaClient } from "@prisma/client";
 
 import { pino } from "pino";
 
@@ -8,9 +8,20 @@ import { AppModule } from "./util/app";
 import { notes } from "./routes/user/notes";
 import { user } from "./routes/user/user";
 import swagger from "@elysiajs/swagger";
+import { Lucia, TimeSpan } from "lucia";
+import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 
 export const prisma = new PrismaClient();
 export const logger = pino();
+
+export const lucia = new Lucia(new PrismaAdapter(prisma.session, prisma.user), {
+  sessionCookie: {
+    attributes: {
+      secure: process.env.NODE_ENV === 'production',
+    }
+  },
+  sessionExpiresIn: new TimeSpan(parseInt(process.env.TOKEN_EXP ?? (() => { throw new Error('Token expiration was not set') } )()), 's')
+})
 
 const app = new Elysia()
   .use(AppModule)

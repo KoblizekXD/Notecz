@@ -1,12 +1,6 @@
 import Elysia, { error as logErr } from "elysia";
-import { jwt, JWTPayloadSpec } from "@elysiajs/jwt";
 import { Permission, User } from "@prisma/client";
-import { prisma } from "..";
-
-type jwtManager = {
-  readonly sign: (morePayload: Record<string, string | number> & JWTPayloadSpec) => Promise<string>;
-  readonly verify: (jwt?: string) => Promise<(Record<string, string | number> & JWTPayloadSpec) | false>;
-}
+import { lucia, prisma } from "..";
 
 export class AuthError extends Error {
   constructor(public required?: Permission[]) {
@@ -15,7 +9,7 @@ export class AuthError extends Error {
 }
 
 export class AuthManager {
-  constructor(public authorization: string | undefined, public jwtManager: jwtManager) { }
+  constructor(public authorization: string | undefined) { }
 
   /**
    * Checks if the user is authenticated.
@@ -26,7 +20,7 @@ export class AuthManager {
    * @returns {boolean} Whether the user is authenticated.
    */
   public async authenticated(): Promise<boolean> {
-    if ((this.authorization !== undefined && await this.jwtManager.verify(this.authorization) !== false))
+    if (this.authorization !== undefined && (await lucia.validateSession(this.authorization)).session)
       return true;
     else throw new AuthError();
   }
@@ -38,11 +32,11 @@ export class AuthManager {
    * @returns {boolean} Whether the user is authorized.
    */
   public async authorized(permissions: Permission[] = []): Promise<User> {
-    const token = await this.jwtManager.verify(this.authorization);
-    if (!token) throw new AuthError(permissions);
+    const user = await this.getAccessingUser();
+    if (!user) throw new AuthError();
 
-    const user = await prisma.user.findUnique({ where: { email: token.sub } });
-    if (!user || user.permissions.every(item => permissions.includes(item))) throw new AuthError(permissions);
+    if (permissions.length > 0 && !permissions.some(permission => user.permissions.includes(permission)))
+      throw new AuthError(permissions);
 
     return user;
   }
@@ -52,24 +46,20 @@ export class AuthManager {
    * @returns {Promise<User | null>} The user accessing the route.
    */
   public async getAccessingUser(): Promise<User | null> {
-    const token = await this.jwtManager.verify(this.authorization);
-    if (!token) throw new AuthError();
+    if (!this.authorization) throw new AuthError();
+    const accessing = await lucia.validateSession(this.authorization!);
+    if (!accessing.user) throw new AuthError();
 
-    return await prisma.user.findUnique({ where: { email: token.sub } });
+    return await prisma.user.findUnique({ where: { id: accessing.user.id } });
   }
 }
 
 export const AppModule = new Elysia({ seed: 'auth_app_module' })
-  .use(jwt({
-    name: 'jwt',
-    secret: process.env.JWT_SECRET ?? (() => { throw new Error('JWT Secret was not found.') })(),
-    exp: `${parseInt(process.env.TOKEN_EXP!) / 60 / 60 / 24}d`
-  }))
   .error({ AuthError })
   .onError({ as: 'global' }, ({ code, error }) => {
     if (code === 'AuthError')
       return logErr('Unauthorized', { message: 'You are not authorized to access this route.', required: error.required });
   })
-  .derive({ as: 'global' }, ({ headers: { authorization }, jwt }) => ({
-    authManager: new AuthManager(authorization, jwt)
+  .derive({ as: 'global' }, ({ headers: { authorization } }) => ({
+    authManager: new AuthManager(authorization)
   }));
