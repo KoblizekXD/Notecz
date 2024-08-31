@@ -1,15 +1,10 @@
-# Elysia with Bun runtime
+# Notecz backend  
 
-## Getting Started
-To get started with this template, simply paste this command into your terminal:
-```bash
-bun create elysia ./elysia-example
-```
+The backend API for Notecz. Uses ElysiaJS as a backend framework, together
+with Prisma ORM for database management and Lucia Auth for session based authentication.
+  
+If you find any bugs/errors in mainly authentication, submit it to issues, they will be resolved asap.  
 
-## Development
-To start the development server run:
-```bash
-bun run dev
-```
+### License  
 
-Open http://localhost:3000/ with your browser to see the result.
+Project is subject to the [MIT License](LICENSE).
