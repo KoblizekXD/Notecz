@@ -1,6 +1,6 @@
 # Example docker-compose.yml file for Notecz Elysia
 
-version: '3.8'
+version: "3.8"
 
 services:
   app:

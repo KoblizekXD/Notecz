@@ -17,38 +17,64 @@ export const logger = pino();
 export const lucia = new Lucia(new PrismaAdapter(prisma.session, prisma.user), {
   sessionCookie: {
     attributes: {
-      secure: process.env.NODE_ENV === 'production',
-    }
+      secure: process.env.NODE_ENV === "production",
+    },
   },
-  sessionExpiresIn: new TimeSpan(parseInt(process.env.TOKEN_EXP ?? (() => { throw new Error('Token expiration was not set') } )()), 's')
-})
+  sessionExpiresIn: new TimeSpan(
+    parseInt(
+      process.env.TOKEN_EXP ??
+        (() => {
+          throw new Error("Token expiration was not set");
+        })(),
+    ),
+    "s",
+  ),
+});
 
 const app = new Elysia()
   .use(AppModule)
-  .use(swagger({ path: '/docs', documentation: {
-    info: {
-      title: 'Notecz API documentation',
-      description: 'Development documentation for the Notecz public API',
-      version: '1.0.0'
-    },
-    tags: [
-      { name: 'Authentication', description: 'Authentication endpoints. Authentication in Notecz is session based. Some requests might require session cookie to be present' },
-      { name: 'Notes', description: 'Endpoints for interacting with notes' },
-      { name: 'User', description: 'Endpoints for interacting with users(primarily fetching information)' }
-    ],
-    components: {
-      securitySchemes: {
-        cookieAuth: {
-          type: "apiKey",
-          in: "cookie",
-          name: "session"
-        }
-      }
-    },
-  }}))
-  .group('/api/auth', app => app.use(auth))
-  .group('/api/notes', app => app.use(notes))
-  .group('/api/users', app => app.use(user))
+  .use(
+    swagger({
+      path: "/docs",
+      documentation: {
+        info: {
+          title: "Notecz API documentation",
+          description: "Development documentation for the Notecz public API",
+          version: "1.0.0",
+        },
+        tags: [
+          {
+            name: "Authentication",
+            description:
+              "Authentication endpoints. Authentication in Notecz is session based. Some requests might require session cookie to be present",
+          },
+          {
+            name: "Notes",
+            description: "Endpoints for interacting with notes",
+          },
+          {
+            name: "User",
+            description:
+              "Endpoints for interacting with users(primarily fetching information)",
+          },
+        ],
+        components: {
+          securitySchemes: {
+            cookieAuth: {
+              type: "apiKey",
+              in: "cookie",
+              name: "session",
+            },
+          },
+        },
+      },
+    }),
+  )
+  .group("/api/auth", (app) => app.use(auth))
+  .group("/api/notes", (app) => app.use(notes))
+  .group("/api/users", (app) => app.use(user))
   .listen(3000);
-  
-logger.info(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`)
+
+logger.info(
+  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
+);

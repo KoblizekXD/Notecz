@@ -4,12 +4,12 @@ import { lucia, prisma } from "..";
 
 export class AuthError extends Error {
   constructor(public required?: Permission[]) {
-    super('Unauthorized');
+    super("Unauthorized");
   }
 }
 
 export class AuthManager {
-  constructor(public authorization: string | undefined) { }
+  constructor(public authorization: string | undefined) {}
 
   /**
    * Checks if the user is authenticated.
@@ -20,14 +20,17 @@ export class AuthManager {
    * @returns {boolean} Whether the user is authenticated.
    */
   public async authenticated(): Promise<boolean> {
-    if (this.authorization !== undefined && (await lucia.validateSession(this.authorization)).session)
+    if (
+      this.authorization !== undefined &&
+      (await lucia.validateSession(this.authorization)).session
+    )
       return true;
     else throw new AuthError();
   }
 
   /**
    * Checks if the user is authorized && authenticated with permissions.
-   * 
+   *
    * @param permissions permissions required to access the route.
    * @returns {boolean} Whether the user is authorized.
    */
@@ -35,7 +38,10 @@ export class AuthManager {
     const user = await this.getAccessingUser();
     if (!user) throw new AuthError();
 
-    if (permissions.length > 0 && !permissions.some(permission => user.permissions.includes(permission)))
+    if (
+      permissions.length > 0 &&
+      !permissions.some((permission) => user.permissions.includes(permission))
+    )
       throw new AuthError(permissions);
 
     return user;
@@ -54,12 +60,15 @@ export class AuthManager {
   }
 }
 
-export const AppModule = new Elysia({ seed: 'auth_app_module' })
+export const AppModule = new Elysia({ seed: "auth_app_module" })
   .error({ AuthError })
-  .onError({ as: 'global' }, ({ code, error }) => {
-    if (code === 'AuthError')
-      return logErr('Unauthorized', { message: 'You are not authorized to access this route.', required: error.required });
+  .onError({ as: "global" }, ({ code, error }) => {
+    if (code === "AuthError")
+      return logErr("Unauthorized", {
+        message: "You are not authorized to access this route.",
+        required: error.required,
+      });
   })
-  .derive({ as: 'global' }, ({ headers: { authorization } }) => ({
-    authManager: new AuthManager(authorization)
+  .derive({ as: "global" }, ({ headers: { authorization } }) => ({
+    authManager: new AuthManager(authorization),
   }));
