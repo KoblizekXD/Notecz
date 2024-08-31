@@ -1,11 +1,10 @@
 import { Elysia, error, t } from 'elysia';
-import { PrismaClientValidationError } from '@prisma/client/runtime/library';
 import { findByEmail, createUser } from '../../util/userutil';
 import { password } from 'bun';
-import { lucia, prisma } from '../..';
+import { lucia } from '../..';
 
 export const auth = new Elysia()
-  .post('/signup', async ({ body }) => {
+  .post('/signup', async ({ body, set }) => {
 
     if (await findByEmail(body.email)) {
       return error('Conflict', { message: 'Email already used.' });
@@ -16,9 +15,12 @@ export const auth = new Elysia()
       name: body.name,
       password: await password.hash(body.password)
     })
-    
+
+    const session = (await lucia.createSession(user.id, {})).id;
+    const cookie = lucia.createSessionCookie(session);
+    set.headers['set-cookie'] = cookie.serialize();
+
     return Response.json({
-      session: (await lucia.createSession(user.id, {})).id,
       expiresIn: process.env.TOKEN_EXP
     }, { status: 201 })
   }, {
@@ -32,11 +34,10 @@ export const auth = new Elysia()
       tags: ['Authentication'],
       responses: {
         201: {
-          description: 'User was created successfully, the response body will contain a JWT token',
+          description: 'User was created successfully, the session cookie has been set',
           content: {
             'application/json': {
               schema: t.Object({
-                token: t.String(),
                 expiresIn: t.String()
               })
             }
@@ -56,15 +57,18 @@ export const auth = new Elysia()
       }
     }
   })
-  .post('/signin', async ({ body }) => {
+  .post('/signin', async ({ body, set }) => {
     const user = await findByEmail(body.email);
 
     if (!user || !await password.verify(body.password, user.password)) {
       return error('Unauthorized', { message: 'Invalid credentials.' });
     }
 
+    const session = (await lucia.createSession(user.id, {})).id;
+    const cookie = lucia.createSessionCookie(session);
+    set.headers['set-cookie'] = cookie.serialize();
+
     return Response.json({
-      session: (await lucia.createSession(user.id, {})).id,
       expiresIn: process.env.TOKEN_EXP
     }, { status: 201 })
   }, {
@@ -74,14 +78,13 @@ export const auth = new Elysia()
     }),
     detail: {
       tags: ['Authentication'],
-      description: 'Checks credentials and signs in a user and returns a JWT token',
+      description: 'Checks credentials and signs in a user, setting a session cookie.',
       responses: {
         200: {
-          description: 'Request was successful, the response body will contain a JWT token',
+          description: 'Request was successful, the session cookie was set',
           content: {
             'application/json': {
               schema: t.Object({
-                token: t.String(),
                 expiresIn: t.String()
               })
             }
@@ -100,11 +103,29 @@ export const auth = new Elysia()
       }
     }
   })
-  .post('/signout', ({ headers }) => {
+  .post('/signout', async ({ cookie, params }) => {
 
+    const session = cookie[lucia.sessionCookieName];
+
+    if (session.value) {
+
+      if (params.all)
+        await lucia.invalidateUserSessions(session.value);
+      else 
+        await lucia.invalidateSession(session.value);
+
+      const blank = lucia.createBlankSessionCookie();
+
+      session.set({
+        value: blank.value,
+        ...blank.attributes
+      })
+    }
+
+    return Response.json({}, { status: 200 });
   }, {
-    headers: t.Object({
-      authorization: t.String()
+    params: t.Object({
+      all: t.Optional(t.Boolean())
     }),
     detail: {
       tags: ['Authentication'],
@@ -112,17 +133,15 @@ export const auth = new Elysia()
       responses: {
         200: {
           description: 'Request was successful, the user was signed out'
-        },
-        401: {
-          description: 'The session was invalid or expired',
-          content: {
-            'application/json': {
-              schema: t.Object({
-                message: t.String({ default: 'Invalid session.' })
-              })
-            }
-          }
         }
-      }
+      },
+      parameters: [
+        {
+          name: 'all',
+          description: 'If true, all sessions for the user will be invalidated(will be signed out from all devices)',
+          in: 'query',
+          schema: t.Boolean(),
+        }
+      ]
     }
   })
