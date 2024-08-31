@@ -1,7 +1,7 @@
 import { Elysia, error, t } from 'elysia';
 import { findByEmail, createUser } from '../../util/userutil';
 import { password } from 'bun';
-import { lucia } from '../..';
+import { logger, lucia } from '../..';
 
 export const auth = new Elysia()
   .post('/signup', async ({ body, set }) => {
@@ -19,7 +19,7 @@ export const auth = new Elysia()
     const session = (await lucia.createSession(user.id, {})).id;
     const cookie = lucia.createSessionCookie(session);
     set.headers['set-cookie'] = cookie.serialize();
-
+    logger.info(`New account created: ${user.username}(${user.id})`);
     return Response.json({
       expiresIn: process.env.TOKEN_EXP
     }, { status: 201 })
@@ -132,7 +132,7 @@ export const auth = new Elysia()
       description: 'Signs out a user by invalidating their session',
       responses: {
         200: {
-          description: 'Request was successful, the user was signed out'
+          description: 'Request was successful, the user was signed out. This response will be used even if the user was not signed in or the session was invalid',
         }
       },
       parameters: [
@@ -141,6 +141,11 @@ export const auth = new Elysia()
           description: 'If true, all sessions for the user will be invalidated(will be signed out from all devices)',
           in: 'query',
           schema: t.Boolean(),
+        }
+      ],
+      security: [
+        {
+          cookieAuth: []
         }
       ]
     }

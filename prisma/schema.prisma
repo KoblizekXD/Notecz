@@ -21,6 +21,7 @@ model Note {
   content  String?
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId String
+  comments Comment[]
 }
 
 model User {
@@ -29,9 +30,20 @@ model User {
   email       String   @unique
   name        String?
   password    String
+  profilePic  String?
   permissions Permission[] @default([CREATE_POST, MANAGE_POST, MODIFY_PROFILE, CREATE_COMMENT])
   notes       Note[]
   sessions    Session[]
+  comments    Comment[]
+}
+
+model Comment {
+  id        Int     @id @default(autoincrement())
+  content   String
+  author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  note      Note    @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  noteId    Int
 }
 
 model Session {
