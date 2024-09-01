@@ -35,7 +35,7 @@ const app = new Elysia()
   .use(AppModule)
   .use(
     swagger({
-      path: "/docs",
+      path: "/api-docs",
       documentation: {
         info: {
           title: "Notecz API documentation",
@@ -70,6 +70,11 @@ const app = new Elysia()
       },
     }),
   )
+  .get("/api/docs", ({ redirect }) => redirect("/api-docs"), {
+    detail: {
+      hide: true
+    }
+  })
   .group("/api/auth", (app) => app.use(auth))
   .group("/api/notes", (app) => app.use(notes))
   .group("/api/users", (app) => app.use(user))
