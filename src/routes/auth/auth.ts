@@ -121,11 +121,12 @@ export const auth = new Elysia()
   )
   .post(
     "/signout",
-    async ({ cookie, params }) => {
+    async ({ cookie, query }) => {
       const session = cookie[lucia.sessionCookieName];
 
       if (session.value) {
-        if (params.all) await lucia.invalidateUserSessions(session.value);
+        logger.info(`Signing out: ${session.value}(all: ${query.all})`);
+        if (query.all) await lucia.invalidateUserSessions(session.value);
         else await lucia.invalidateSession(session.value);
 
         const blank = lucia.createBlankSessionCookie();
@@ -136,10 +137,10 @@ export const auth = new Elysia()
         });
       }
 
-      return Response.json({}, { status: 200 });
+      return Response.json("", { status: 200 });
     },
     {
-      params: t.Object({
+      query: t.Object({
         all: t.Optional(t.Boolean()),
       }),
       detail: {

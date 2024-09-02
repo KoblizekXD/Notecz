@@ -72,8 +72,8 @@ const app = new Elysia()
   )
   .get("/api/docs", ({ redirect }) => redirect("/api-docs"), {
     detail: {
-      hide: true
-    }
+      hide: true,
+    },
   })
   .group("/api/auth", (app) => app.use(auth))
   .group("/api/notes", (app) => app.use(notes))

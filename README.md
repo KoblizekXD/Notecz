@@ -1,2 +1,1 @@
-# Notecz backend  
-
+# Notecz backend
