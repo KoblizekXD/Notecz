@@ -82,7 +82,7 @@ export const auth = new Elysia()
         {
           expiresIn: process.env.TOKEN_EXP,
         },
-        { status: 201 },
+        { status: 200 },
       );
     },
     {

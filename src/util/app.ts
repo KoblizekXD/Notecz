@@ -1,6 +1,6 @@
 import Elysia, { error as logErr } from "elysia";
 import { Permission, User } from "@prisma/client";
-import { lucia, prisma } from "..";
+import { logger, lucia, prisma } from "..";
 
 export class AuthError extends Error {
   constructor(public required?: Permission[]) {
@@ -36,14 +36,19 @@ export class AuthManager {
    */
   public async authorized(permissions: Permission[] = []): Promise<User> {
     const user = await this.getAccessingUser();
-    if (!user) throw new AuthError();
+    if (!user) {
+      throw new AuthError();
+    }
 
     if (
       permissions.length > 0 &&
       !permissions.some((permission) => user.permissions.includes(permission))
-    )
+    ) {
+      logger.warn(
+        `User(${user.id}) does not have sufficient permissions(${permissions})`,
+      );
       throw new AuthError(permissions);
-
+    }
     return user;
   }
 
@@ -69,6 +74,8 @@ export const AppModule = new Elysia({ seed: "auth_app_module" })
         required: error.required,
       });
   })
-  .derive({ as: "global" }, ({ headers: { authorization } }) => ({
-    authManager: new AuthManager(authorization),
+  .derive({ as: "global" }, ({ headers: { authorization }, cookie }) => ({
+    authManager: new AuthManager(
+      cookie[lucia.sessionCookieName].value || authorization,
+    ),
   }));

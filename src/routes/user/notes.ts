@@ -1,6 +1,6 @@
 import { Elysia, error, t } from "elysia";
 import { logger, prisma } from "../..";
-import { AppModule, AuthManager } from "../../util/app";
+import { AppModule } from "../../util/app";
 import { Permission } from "@prisma/client";
 
 export const notes = new Elysia()

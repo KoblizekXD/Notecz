@@ -80,6 +80,8 @@ const app = new Elysia()
   .group("/api/users", (app) => app.use(user))
   .listen(3000);
 
+export { app };
+
 logger.info(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
 );
