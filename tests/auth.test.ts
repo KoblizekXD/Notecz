@@ -52,15 +52,6 @@ describe("Authentication", () => {
     );
   });
 
-  it("Correctly logs out", async () => {
-    const resp = await eden.api.auth.signout.post(
-      {},
-      { query: { all: false } },
-    );
-    expect(resp.status).toBe(200);
-    expect((resp.headers as Headers).get("set-cookie")).toBeEmpty();
-  });
-
   it("Allows login", async () => {
     const resp = await eden.api.auth.signin.post({
       email: "test@test.com",
@@ -89,5 +80,15 @@ describe("Authentication", () => {
       content: "Test content, this is test, again",
     });
     expect(resp.status).toBe(401);
+  });
+
+  it("Correctly logs out", async () => {
+    const resp = await eden.api.auth.signout.post(
+      {},
+      { query: { all: true }, fetch: { headers: { cookie: session! } } },
+    );
+    
+    expect(resp.status).toBe(200);
+    expect(resp.data?.count).toBe(2);
   });
 });

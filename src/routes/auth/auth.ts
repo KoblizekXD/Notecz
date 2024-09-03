@@ -125,8 +125,14 @@ export const auth = new Elysia()
       const session = cookie[lucia.sessionCookieName];
 
       if (session.value) {
+        const userId = (await lucia.validateSession(session.value)).user?.id!;
         logger.info(`Signing out: ${session.value}(all: ${query.all})`);
-        if (query.all) await lucia.invalidateUserSessions(session.value);
+        
+        const sc = (await lucia.getUserSessions(userId)).length;
+
+        if (query.all) { 
+          await lucia.invalidateUserSessions(userId); 
+        }
         else await lucia.invalidateSession(session.value);
 
         const blank = lucia.createBlankSessionCookie();
@@ -135,9 +141,11 @@ export const auth = new Elysia()
           value: blank.value,
           ...blank.attributes,
         });
+        
+        return { count: Math.abs(sc - (await lucia.getUserSessions(userId)).length) };
       }
 
-      return Response.json("", { status: 200 });
+      return error("Unauthorized", { message: "You are not signed in." });
     },
     {
       query: t.Object({
@@ -149,7 +157,20 @@ export const auth = new Elysia()
         responses: {
           200: {
             description:
-              "Request was successful, the user was signed out. This response will be used even if the user was not signed in or the session was invalid",
+              "Request was successful, the user was signed out. The count of invalidated sessions is returned",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    count: { type: "number", description: "The count of invalidated sessions" },
+                  },
+                }
+              },
+            }
+          },
+          401: {
+            description: "The user was not signed in(or cookie was not set)",
           },
         },
         parameters: [
