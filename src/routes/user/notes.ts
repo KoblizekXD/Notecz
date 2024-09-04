@@ -1,18 +1,18 @@
-import { Elysia, error, t } from "elysia";
-import { logger, prisma } from "../..";
-import { AppModule } from "../../util/app";
-import { Permission } from "@prisma/client";
+import { Elysia, error, t } from 'elysia';
+import { logger, prisma } from '../..';
+import { AppModule } from '../../util/app';
+import { Permission } from '@prisma/client';
 
 export const notes = new Elysia()
   .use(AppModule)
   .get(
-    "/",
+    '/',
     async ({ query }) => {
-      const count = parseInt(query["count"] ?? "12");
-      const offset = parseInt(query["offset"] ?? "0");
+      const count = parseInt(query['count'] ?? '12');
+      const offset = parseInt(query['offset'] ?? '0');
       if (isNaN(count) || isNaN(offset))
-        return error("Bad Request", {
-          message: "Invalid count or offset, expecting an integer.",
+        return error('Bad Request', {
+          message: 'Invalid count or offset, expecting an integer.',
         });
       return {
         notes: await prisma.note.findMany({
@@ -25,36 +25,36 @@ export const notes = new Elysia()
     },
     {
       detail: {
-        description: "Fetches number of existing notes, without their content",
-        tags: ["Notes"],
+        description: 'Fetches number of existing notes, without their content',
+        tags: ['Notes'],
         responses: {
           200: {
             description:
-              "Request was sucessful, response body contains notes and total count of notes",
+              'Request was sucessful, response body contains notes and total count of notes',
             content: {
-              "application/json": {
+              'application/json': {
                 schema: {
-                  type: "object",
+                  type: 'object',
                   properties: {
                     notes: {
-                      type: "array",
+                      type: 'array',
                       items: {
-                        type: "object",
+                        type: 'object',
                         properties: {
                           id: {
-                            type: "integer",
-                            description: "Unique identifier of the note",
+                            type: 'integer',
+                            description: 'Unique identifier of the note',
                           },
                           title: {
-                            type: "string",
-                            description: "Title of the note",
+                            type: 'string',
+                            description: 'Title of the note',
                           },
                         },
                       },
                     },
                     total: {
-                      type: "integer",
-                      description: "Total number of notes in the database",
+                      type: 'integer',
+                      description: 'Total number of notes in the database',
                     },
                   },
                 },
@@ -64,22 +64,22 @@ export const notes = new Elysia()
         },
         parameters: [
           {
-            name: "count",
-            in: "query",
-            description: "Number of notes to fetch, defaults to 12, if missing",
+            name: 'count',
+            in: 'query',
+            description: 'Number of notes to fetch, defaults to 12, if missing',
             required: false,
             schema: {
-              type: "integer",
+              type: 'integer',
             },
             example: 12,
           },
           {
-            name: "offset",
-            in: "query",
-            description: "Number of notes to skip, defaults to 0, if missing",
+            name: 'offset',
+            in: 'query',
+            description: 'Number of notes to skip, defaults to 0, if missing',
             required: false,
             schema: {
-              type: "integer",
+              type: 'integer',
             },
             example: 12,
           },
@@ -88,7 +88,7 @@ export const notes = new Elysia()
     },
   )
   .post(
-    "/",
+    '/',
     async ({ body, authManager }) => {
       const user = await authManager.authorized([Permission.CREATE_POST]);
 
@@ -106,7 +106,7 @@ export const notes = new Elysia()
       });
       return res
         ? Response.json({ id: res.id }, { status: 201 })
-        : error("Internal Server Error");
+        : error('Internal Server Error');
     },
     {
       body: t.Object({
@@ -114,11 +114,11 @@ export const notes = new Elysia()
         content: t.String({ minLength: 20, maxLength: 5000 }),
       }),
       detail: {
-        description: "Creates a new note",
-        tags: ["Notes"],
+        description: 'Creates a new note',
+        tags: ['Notes'],
         responses: {
           201: {
-            description: "New note was created succesfully",
+            description: 'New note was created succesfully',
           },
           401: {
             description:
@@ -126,7 +126,7 @@ export const notes = new Elysia()
           },
           422: {
             description:
-              "Request body validation failed, see the response body for more information",
+              'Request body validation failed, see the response body for more information',
           },
         },
       },
@@ -138,7 +138,7 @@ export const notes = new Elysia()
     },
   )
   .post(
-    "/:id/comments",
+    '/:id/comments',
     async ({ body, params, authManager }) => {
       const user = await authManager.authorized([Permission.CREATE_COMMENT]);
       const res = await prisma.note.update({
@@ -157,26 +157,26 @@ export const notes = new Elysia()
 
       return res
         ? Response.json({ id: res.id }, { status: 201 })
-        : error("Internal Server Error");
+        : error('Internal Server Error');
     },
     {
       body: t.Object({
         content: t.String({ minLength: 5, maxLength: 500 }),
       }),
       detail: {
-        description: "Creates a new comment on a specific note",
-        tags: ["Notes"],
+        description: 'Creates a new comment on a specific note',
+        tags: ['Notes'],
         responses: {
           201: {
-            description: "New comment was created succesfully",
+            description: 'New comment was created succesfully',
             content: {
-              "application/json": {
+              'application/json': {
                 schema: {
-                  type: "object",
+                  type: 'object',
                   properties: {
                     id: {
-                      type: "integer",
-                      description: "Unique identifier of the comment",
+                      type: 'integer',
+                      description: 'Unique identifier of the comment',
                     },
                   },
                 },
@@ -189,7 +189,7 @@ export const notes = new Elysia()
           },
           422: {
             description:
-              "Request body validation failed, see the response body for more information",
+              'Request body validation failed, see the response body for more information',
           },
         },
       },
@@ -201,7 +201,7 @@ export const notes = new Elysia()
     },
   )
   .get(
-    "/:id",
+    '/:id',
     async ({ params }) => {
       const note = await prisma.note.findUnique({
         where: { id: params.id },
@@ -214,53 +214,53 @@ export const notes = new Elysia()
         },
       });
 
-      return note ? note : error("Not Found", { message: "Note not found" });
+      return note ? note : error('Not Found', { message: 'Note not found' });
     },
     {
       params: t.Object({
         id: t.Integer(),
       }),
       detail: {
-        description: "Fetches a specific note with its comments",
-        tags: ["Notes"],
+        description: 'Fetches a specific note with its comments',
+        tags: ['Notes'],
         responses: {
           200: {
             description:
-              "Request was sucessful, response body contains the note and its comments",
+              'Request was sucessful, response body contains the note and its comments',
             content: {
-              "application/json": {
+              'application/json': {
                 schema: {
-                  type: "object",
+                  type: 'object',
                   properties: {
                     id: {
-                      type: "integer",
-                      description: "Unique identifier of the note",
+                      type: 'integer',
+                      description: 'Unique identifier of the note',
                     },
                     title: {
-                      type: "string",
-                      description: "Title of the note",
+                      type: 'string',
+                      description: 'Title of the note',
                     },
                     content: {
-                      type: "string",
-                      description: "Content of the note",
+                      type: 'string',
+                      description: 'Content of the note',
                     },
                     comments: {
-                      type: "array",
+                      type: 'array',
                       items: {
-                        type: "object",
+                        type: 'object',
                         properties: {
                           id: {
-                            type: "integer",
-                            description: "Unique identifier of the comment",
+                            type: 'integer',
+                            description: 'Unique identifier of the comment',
                           },
                           content: {
-                            type: "string",
-                            description: "Content of the comment",
+                            type: 'string',
+                            description: 'Content of the comment',
                           },
                           userId: {
-                            type: "string",
+                            type: 'string',
                             description:
-                              "Unique identifier of the author of the comment",
+                              'Unique identifier of the author of the comment',
                           },
                         },
                       },
@@ -271,7 +271,7 @@ export const notes = new Elysia()
             },
           },
           404: {
-            description: "Note was not found",
+            description: 'Note was not found',
           },
         },
       },

@@ -1,11 +1,11 @@
-import Elysia, { error, t } from "elysia";
-import { AppModule } from "../../util/app";
-import { prisma } from "../..";
+import Elysia, { error, t } from 'elysia';
+import { AppModule } from '../../util/app';
+import { prisma } from '../..';
 
 export const user = new Elysia()
   .use(AppModule)
   .get(
-    "/:id",
+    '/:id',
     async ({ params }) => {
       const res = await prisma.user.findUnique({
         where: {
@@ -25,8 +25,8 @@ export const user = new Elysia()
       });
 
       if (res === null)
-        return error("Not Found", {
-          message: "User not found.",
+        return error('Not Found', {
+          message: 'User not found.',
           id: params.id,
         });
       return res;
@@ -36,32 +36,32 @@ export const user = new Elysia()
         id: t.String({ minLength: 1 }),
       }),
       detail: {
-        tags: ["User"],
-        description: "Returns information about a user specified by their ID",
+        tags: ['User'],
+        description: 'Returns information about a user specified by their ID',
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             description:
-              "Unique identifier of the user, the format used for identifiers is CUID",
+              'Unique identifier of the user, the format used for identifiers is CUID',
             required: true,
           },
         ],
         responses: {
           200: {
             description:
-              "Request was successful, the response body will contain information about the user and their notes",
+              'Request was successful, the response body will contain information about the user and their notes',
           },
           404: {
             description:
-              "User not found, the response body will contain an error message",
+              'User not found, the response body will contain an error message',
           },
         },
       },
     },
   )
   .get(
-    "/:id/notes",
+    '/:id/notes',
     async ({ params }) => {
       const res = await prisma.user.findUnique({
         where: {
@@ -78,43 +78,43 @@ export const user = new Elysia()
       });
 
       if (res === null)
-        return error("Not Found", {
-          message: "User not found.",
+        return error('Not Found', {
+          message: 'User not found.',
           id: params.id,
         });
       return res.notes;
     },
     {
       detail: {
-        description: "Fetches notes created by a user specified by their ID",
-        tags: ["User", "Notes"],
+        description: 'Fetches notes created by a user specified by their ID',
+        tags: ['User', 'Notes'],
         parameters: [
           {
-            name: "id",
-            in: "path",
+            name: 'id',
+            in: 'path',
             description:
-              "Unique identifier of the user, the format used for identifiers is CUID",
+              'Unique identifier of the user, the format used for identifiers is CUID',
             required: true,
           },
         ],
         responses: {
           200: {
             description:
-              "Request was successful, the response body will contain notes created by the user",
+              'Request was successful, the response body will contain notes created by the user',
             content: {
-              "application/json": {
+              'application/json': {
                 schema: {
-                  type: "array",
+                  type: 'array',
                   items: {
-                    type: "object",
+                    type: 'object',
                     properties: {
                       id: {
-                        type: "integer",
-                        description: "Unique identifier of the note",
+                        type: 'integer',
+                        description: 'Unique identifier of the note',
                       },
                       title: {
-                        type: "string",
-                        description: "Title of the note",
+                        type: 'string',
+                        description: 'Title of the note',
                       },
                     },
                   },
@@ -124,19 +124,19 @@ export const user = new Elysia()
           },
           404: {
             description:
-              "User was not found, the response body will contain an error message",
+              'User was not found, the response body will contain an error message',
             content: {
-              "application/json": {
+              'application/json': {
                 schema: {
-                  type: "object",
+                  type: 'object',
                   properties: {
                     message: {
-                      type: "string",
-                      description: "Error message",
+                      type: 'string',
+                      description: 'Error message',
                     },
                     id: {
-                      type: "string",
-                      description: "User ID",
+                      type: 'string',
+                      description: 'User ID',
                     },
                   },
                 },

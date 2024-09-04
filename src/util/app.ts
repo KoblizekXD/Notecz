@@ -1,10 +1,10 @@
-import Elysia, { error as logErr } from "elysia";
-import { Permission, User } from "@prisma/client";
-import { logger, lucia, prisma } from "..";
+import Elysia, { error as logErr } from 'elysia';
+import { Permission, User } from '@prisma/client';
+import { logger, lucia, prisma } from '..';
 
 export class AuthError extends Error {
   constructor(public required?: Permission[]) {
-    super("Unauthorized");
+    super('Unauthorized');
   }
 }
 
@@ -65,16 +65,16 @@ export class AuthManager {
   }
 }
 
-export const AppModule = new Elysia({ seed: "auth_app_module" })
+export const AppModule = new Elysia({ seed: 'auth_app_module' })
   .error({ AuthError })
-  .onError({ as: "global" }, ({ code, error }) => {
-    if (code === "AuthError")
-      return logErr("Unauthorized", {
-        message: "You are not authorized to access this route.",
+  .onError({ as: 'global' }, ({ code, error }) => {
+    if (code === 'AuthError')
+      return logErr('Unauthorized', {
+        message: 'You are not authorized to access this route.',
         required: error.required,
       });
   })
-  .derive({ as: "global" }, ({ headers: { authorization }, cookie }) => ({
+  .derive({ as: 'global' }, ({ headers: { authorization }, cookie }) => ({
     authManager: new AuthManager(
       cookie[lucia.sessionCookieName].value || authorization,
     ),
