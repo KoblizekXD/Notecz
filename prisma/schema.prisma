@@ -22,6 +22,9 @@ model Note {
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId String
   comments Comment[]
+  tags     Tag[]
+
+  createdAt DateTime @default(now())
 }
 
 model User {
@@ -35,6 +38,8 @@ model User {
   notes       Note[]
   sessions    Session[]
   comments    Comment[]
+
+  createdAt DateTime @default(now())
 }
 
 model Comment {
@@ -44,6 +49,8 @@ model Comment {
   authorId  String
   note      Note    @relation(fields: [noteId], references: [id], onDelete: Cascade)
   noteId    Int
+
+  createdAt DateTime @default(now())
 }
 
 model Session {
@@ -52,4 +59,10 @@ model Session {
   expiresAt DateTime
 
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+model Tag {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  notes     Note[]
 }
