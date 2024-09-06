@@ -4,6 +4,7 @@ import { Elysia } from 'elysia';
 import { auth } from './auth';
 import { notes } from './user/note';
 import { user } from './user';
+import { logger } from '@/lib/util';
 
 export const elysia = new Elysia({ prefix: '/api' })
 	.use(AppModule)
@@ -47,6 +48,11 @@ export const elysia = new Elysia({ prefix: '/api' })
 	.use(auth)
 	.use(user)
 	.use(notes);
+
+if (process.env.BACKEND_ONLY) {
+  logger.info('Detected backend only mode, skipping frontend setup, and launching API only');
+  elysia.listen(3000);
+}
 
 export const GET = elysia.handle;
 export const POST = elysia.handle;
