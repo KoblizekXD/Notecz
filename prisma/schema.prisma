@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Permission {
+  CREATE_POST // can create a new post
+  MANAGE_POST // can edit/update own posts
+  MODIFY_PROFILE // can edit/update own profile
+  CREATE_COMMENT // can create a new comment
+}
+
+model Note {
+  id       Int     @id @default(autoincrement())
+  title    String  
+  content  String?
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  comments Comment[]
+  tags     Tag[]
+
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  email       String   @unique
+  name        String?
+  password    String
+  profilePic  String?
+  permissions Permission[] @default([CREATE_POST, MANAGE_POST, MODIFY_PROFILE, CREATE_COMMENT])
+  notes       Note[]
+  sessions    Session[]
+  comments    Comment[]
+
+  createdAt DateTime @default(now())
+}
+
+model Comment {
+  id        Int     @id @default(autoincrement())
+  content   String
+  author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  note      Note    @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  noteId    Int
+
+  createdAt DateTime @default(now())
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+model Tag {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  notes     Note[]
+}
