@@ -1,9 +1,9 @@
 import { Elysia, error, t } from 'elysia';
-import { logger, prisma } from '../..';
-import { AppModule } from '../../util/app';
+import { logger, prisma } from '@/lib/util';
+import { AppModule } from '@/lib/authlib';
 import { Permission } from '@prisma/client';
 
-export const notes = new Elysia()
+export const notes = new Elysia({ prefix: '/notes' })
   .use(AppModule)
   .get(
     '/',

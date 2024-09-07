@@ -1,6 +1,6 @@
 import Elysia, { error as logErr } from 'elysia';
 import { Permission, User } from '@prisma/client';
-import { logger, lucia, prisma } from '..';
+import { logger, lucia, prisma } from '@/lib/util';
 
 export class AuthError extends Error {
   constructor(public required?: Permission[]) {

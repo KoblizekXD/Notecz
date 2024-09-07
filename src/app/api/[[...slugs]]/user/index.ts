@@ -1,8 +1,8 @@
 import Elysia, { error, t } from 'elysia';
-import { AppModule } from '../../util/app';
-import { prisma } from '../..';
+import { AppModule } from '@/lib/authlib';
+import { prisma } from '@/lib/util';
 
-export const user = new Elysia()
+export const user = new Elysia({ prefix: '/user' })
   .use(AppModule)
   .get(
     '/:id',
