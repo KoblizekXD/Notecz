@@ -1,5 +1,6 @@
 import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 import { Prisma, PrismaClient } from "@prisma/client";
+import Elysia from "elysia";
 import { Lucia, TimeSpan } from "lucia";
 import pino from "pino";
 
@@ -41,5 +42,6 @@ export const encode = async (pass: string) => {
 
 export const verify = async (pass: string, hash: string) => {
   return await Bun.password.verify(pass, hash);
-
 }
+
+export const elysia = new Elysia({ prefix: '/api' })

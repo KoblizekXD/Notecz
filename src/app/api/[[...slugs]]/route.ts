@@ -4,10 +4,9 @@ import { Elysia } from 'elysia';
 import { auth } from './auth';
 import { notes } from './user/note';
 import { user } from './user';
-import { logger } from '@/lib/util';
+import { elysia, logger } from '@/lib/util';
 
-export const elysia = new Elysia({ prefix: '/api' })
-	.use(AppModule)
+elysia.use(AppModule)
 	.use(
 		  swagger({
 		    path: '/docs',

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "backend": "bunx prisma db push && bun src/app/api/[[...slugs]]/route.ts"
   },
   "dependencies": {
     "@elysiajs/eden": "^1.1.3",

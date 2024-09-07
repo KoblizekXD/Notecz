@@ -1,0 +1,27 @@
+ARG BUN_VERSION=1.1.13
+ARG NODE_VERSION=20.12.2
+FROM imbios/bun-node:${BUN_VERSION}-${NODE_VERSION}-slim
+
+# FUCK YOU
+USER root
+WORKDIR /app
+RUN chmod 777 /app
+
+# Run as a non-privileged user
+# RUN useradd -ms /bin/bash -u 1001 appuser
+# USER appuser
+
+COPY package.json bun.lockb ./
+RUN bun install --production
+COPY ./prisma/ ./prisma/
+RUN bunx prisma generate
+
+# Copy source files into application directory
+COPY --chown=root /src /app/src
+
+# set env
+ENV PORT=3000
+ENV NODE_ENV=production
+ENV BACKEND_ONLY=true
+
+CMD ["bun", "run", "backend"]
