@@ -15,10 +15,7 @@ export const lucia = new Lucia(new PrismaAdapter(prisma.session, prisma.user), {
   },
   sessionExpiresIn: new TimeSpan(
     parseInt(
-      process.env.TOKEN_EXP ??
-        (() => {
-          throw new Error('Token expiration was not set');
-        })(),
+      process.env.TOKEN_EXP ?? '3600',
     ),
     's',
   ),

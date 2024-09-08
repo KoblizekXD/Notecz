@@ -11,15 +11,16 @@ RUN chmod 777 /app
 # RUN useradd -ms /bin/bash -u 1001 appuser
 # USER appuser
 
-COPY package.json bun.lockb ./
-RUN bun install --production
+COPY package.json bun.lockb tsconfig.json ./
+RUN bun install
 COPY ./prisma/ ./prisma/
 RUN bunx prisma generate
 
 # Copy source files into application directory
 COPY --chown=root /src /app/src
 RUN bun run build
-RUN rm -rf /app/src
+RUN rm -rf ./src
+RUN rm -rf ./node_modules
 
 # set env
 ENV PORT=3000
