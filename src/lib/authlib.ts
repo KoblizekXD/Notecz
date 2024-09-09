@@ -67,12 +67,18 @@ export class AuthManager {
 
 export const AppModule = new Elysia({ seed: 'auth_app_module' })
   .error({ AuthError })
-  .onError({ as: 'global' }, ({ code, error }) => {
+  .onError({ as: 'global' }, ({ code, error, redirect }) => {
     if (code === 'AuthError')
       return logErr('Unauthorized', {
         message: 'You are not authorized to access this route.',
         required: error.required,
       });
+    else if (code === 'NOT_FOUND') {
+      return redirect('/not-found', 301);
+    }
+  })
+  .get('/not-found', (req) => {    
+    return Response.json({});
   })
   .derive({ as: 'global' }, ({ headers: { authorization }, cookie }) => ({
     authManager: new AuthManager(

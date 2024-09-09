@@ -26,4 +26,4 @@ RUN rm -rf ./node_modules
 ENV PORT=3000
 ENV NODE_ENV=production
 
-CMD ["bun", "run", "start"]
+CMD ["bun", "run", "standalone"]
