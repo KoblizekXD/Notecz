@@ -1,10 +1,9 @@
 import { beforeAll, describe, expect, it } from 'bun:test';
 import { Elysia } from 'elysia';
 import { treaty } from '@elysiajs/eden';
-import { logger, prisma } from '@/lib/util';
-import { app } from '@/app/api/[[...slugs]]/route';
+import { elysia, logger, prisma } from '@/lib/util';
 
-const eden = treaty(app);
+const eden = treaty(elysia);
 let session;
 
 describe('Authentication', () => {

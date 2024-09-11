@@ -67,7 +67,7 @@ export class AuthManager {
 
 export const AppModule = new Elysia({ seed: 'auth_app_module' })
   .error({ AuthError })
-  .get('/not-found', (req) => {    
+  .get('/not-found', (req) => {
     return Response.json({});
   })
   .onError({ as: 'global' }, ({ code, error, redirect, set }) => {
