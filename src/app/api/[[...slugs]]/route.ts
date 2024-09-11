@@ -5,7 +5,7 @@ import { notes } from './user/note';
 import { user } from './user';
 import { elysia, logger } from '@/lib/util';
 
-elysia
+export const app = elysia
   .use(AppModule)
   .use(
     swagger({
