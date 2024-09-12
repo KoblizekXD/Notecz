@@ -25,7 +25,10 @@ jobs:
           password: ${{ secrets.TOKEN  }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-      - name: Install Dependencies
+      - name: Update database
+        with:
+          bun-version: latest
+        uses: oven-sh/setup-bun@v2
         env:
           DATABASE_URL: ${{ secrets.PRISMA_URL }}
         run: bun run prisma db push
