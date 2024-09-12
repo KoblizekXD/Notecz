@@ -29,10 +29,10 @@ jobs:
         with:
           bun-version: latest
         uses: oven-sh/setup-bun@v2
-        env:
-          DATABASE_URL: ${{ secrets.PRISMA_URL }}
       - name: Update database schema
         run: bun install --frozen-lockfile --no-save prisma && bunx prisma db push --skip-generate
+        env:
+          DATABASE_URL: ${{ secrets.PRISMA_URL }}
       - name: Build image and push to registry
         uses: docker/build-push-action@v4
         with:
