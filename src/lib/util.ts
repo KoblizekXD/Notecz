@@ -1,15 +1,13 @@
-import Elysia from 'elysia';
-import { PrismaClient } from '@prisma/client';
-
-import { pino } from 'pino';
-
-import { auth } from './routes/auth/auth';
-import { AppModule } from './util/app';
-import { notes } from './routes/user/notes';
-import { user } from './routes/user/user';
-import swagger from '@elysiajs/swagger';
-import { Lucia, TimeSpan } from 'lucia';
+import { auth } from '@/app/api/[[...slugs]]/auth';
+import { user } from '@/app/api/[[...slugs]]/user';
+import { notes } from '@/app/api/[[...slugs]]/user/note';
 import { PrismaAdapter } from '@lucia-auth/adapter-prisma';
+import { Prisma, PrismaClient } from '@prisma/client';
+import Elysia from 'elysia';
+import { Lucia, TimeSpan } from 'lucia';
+import pino from 'pino';
+import { AppModule } from './authlib';
+import swagger from '@elysiajs/swagger';
 
 export const prisma = new PrismaClient();
 export const logger = pino();
@@ -21,21 +19,36 @@ export const lucia = new Lucia(new PrismaAdapter(prisma.session, prisma.user), {
     },
   },
   sessionExpiresIn: new TimeSpan(
-    parseInt(
-      process.env.TOKEN_EXP ??
-        (() => {
-          throw new Error('Token expiration was not set');
-        })(),
-    ),
+    parseInt(process.env.TOKEN_EXP ?? '3600'),
     's',
   ),
 });
 
-const app = new Elysia()
+export const createUser = async (user: Prisma.UserCreateInput) => {
+  return await prisma.user.create({
+    data: user,
+  });
+};
+
+export const findByEmail = async (email: string) => {
+  return await prisma.user.findUnique({
+    where: { email },
+  });
+};
+
+export const encode = async (pass: string) => {
+  return await Bun.password.hash(pass);
+};
+
+export const verify = async (pass: string, hash: string) => {
+  return await Bun.password.verify(pass, hash);
+};
+
+export const elysia = new Elysia({ prefix: '/api' })
   .use(AppModule)
   .use(
     swagger({
-      path: '/api-docs',
+      path: '/docs',
       documentation: {
         info: {
           title: 'Notecz API documentation',
@@ -70,18 +83,6 @@ const app = new Elysia()
       },
     }),
   )
-  .get('/api/docs', ({ redirect }) => redirect('/api-docs'), {
-    detail: {
-      hide: true,
-    },
-  })
-  .group('/api/auth', (app) => app.use(auth))
-  .group('/api/notes', (app) => app.use(notes))
-  .group('/api/users', (app) => app.use(user))
-  .listen(3000);
-
-export { app };
-
-logger.info(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
-);
+  .use(auth)
+  .use(user)
+  .use(notes);

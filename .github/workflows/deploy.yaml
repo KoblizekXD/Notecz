@@ -25,6 +25,10 @@ jobs:
           password: ${{ secrets.TOKEN  }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+      - name: Install Dependencies
+        env:
+          DATABASE_URL: ${{ secrets.PRISMA_URL }}
+        run: bun run prisma db push
       - name: Build image and push to registry
         uses: docker/build-push-action@v4
         with:

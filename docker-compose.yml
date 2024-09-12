@@ -1,4 +1,4 @@
-# Example docker-compose.yml file for Notecz Elysia
+# Example docker-compose.yml file for fullstack Notecz Elysia
 
 version: '3.8'
 

@@ -1,9 +1,8 @@
 import { Elysia, error, t } from 'elysia';
-import { findByEmail, createUser } from '../../util/userutil';
-import { password } from 'bun';
-import { logger, lucia } from '../..';
+import { findByEmail, createUser, encode, verify } from '@/lib/util';
+import { logger, lucia } from '@/lib/util';
 
-export const auth = new Elysia()
+export const auth = new Elysia({ prefix: '/auth' })
   .post(
     '/signup',
     async ({ body, set }) => {
@@ -14,7 +13,7 @@ export const auth = new Elysia()
         username: body.username,
         email: body.email,
         name: body.name,
-        password: await password.hash(body.password),
+        password: await encode(body.password),
       });
 
       const session = (await lucia.createSession(user.id, {})).id;
@@ -70,7 +69,7 @@ export const auth = new Elysia()
     async ({ body, set }) => {
       const user = await findByEmail(body.email);
 
-      if (!user || !(await password.verify(body.password, user.password))) {
+      if (!user || !(await verify(body.password, user.password))) {
         return error('Unauthorized', { message: 'Invalid credentials.' });
       }
 

@@ -1,6 +1,6 @@
 import Elysia, { error as logErr } from 'elysia';
 import { Permission, User } from '@prisma/client';
-import { logger, lucia, prisma } from '..';
+import { logger, lucia, prisma } from '@/lib/util';
 
 export class AuthError extends Error {
   constructor(public required?: Permission[]) {
@@ -67,12 +67,19 @@ export class AuthManager {
 
 export const AppModule = new Elysia({ seed: 'auth_app_module' })
   .error({ AuthError })
-  .onError({ as: 'global' }, ({ code, error }) => {
+  .get('/not-found', (req) => {
+    return Response.json({});
+  })
+  .onError({ as: 'global' }, ({ code, error, redirect, set }) => {
     if (code === 'AuthError')
       return logErr('Unauthorized', {
         message: 'You are not authorized to access this route.',
         required: error.required,
       });
+    else if (code === 'NOT_FOUND') {
+      set.redirect = '/not-found';
+      return {};
+    }
   })
   .derive({ as: 'global' }, ({ headers: { authorization }, cookie }) => ({
     authManager: new AuthManager(
