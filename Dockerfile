@@ -11,7 +11,7 @@ RUN chmod 777 /app
 # RUN useradd -ms /bin/bash -u 1001 appuser
 # USER appuser
 
-COPY package.json bun.lockb tsconfig.json ./
+COPY package.json bun.lockb tsconfig.json next.config.mjs ./
 RUN bun install
 COPY ./prisma/ ./prisma/
 RUN bunx prisma generate
