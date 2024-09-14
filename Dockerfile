@@ -19,6 +19,9 @@ RUN bunx prisma generate
 # Copy source files into application directory
 COPY --chown=root /src /app/src
 RUN bun run build
+RUN mkdir --parents ./.next/standalone/public/_next/static 
+COPY ./public ./.next/standalone/public
+RUN cp ./.next/static -r ./.next/standalone/public/_next
 RUN rm -rf ./src
 RUN rm -rf ./node_modules
 
