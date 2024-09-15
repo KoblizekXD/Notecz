@@ -13,6 +13,8 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -54,17 +56,42 @@ const components: { title: string; href: string; description: string }[] = [
 
 export default function HomePage() {
   return (
-    <NavigationMenu className='flex justify-between'>
-      <NavigationMenuList>
+    <div className='flex h-screen bg-[url("../../public/wave-haikei.svg")] bg-cover bg-no-repeat flex-col'>
+      <NavBar />
+      <div className='h-[30vh]' />
+      <div className={'flex items-center gap-y-6 justify-center flex-col'}>
+        <h1 className='text-5xl font-extrabold'>Notecz</h1>
+        <p className='text-xl'>
+          Sdílení poznámek nikdy nebylo jednodušší. Vytvořte si účet a začněte hned!
+        </p>
+        <div className='gap-4 flex'>
+          <Button className='w-28' variant='default'>Hledat</Button>
+          <Button className='w-28' variant='secondary'>Vytvořit účet</Button>
+        </div>
+      </div>
+      <div className='flex mt-auto mb-[8vh] flex-col gap-y-4 items-center justify-center'>
+        <h3>Dozvědet se více</h3>
+        <Button variant='ghost' className='rounded-3xl' size='icon'>
+          <ChevronDown className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export function NavBar() {
+  return (
+    <NavigationMenu className="justify-between max-h-[8vh] h-[8vh] backdrop-blur-lg border-b-gray-700 border-b px-2 py-2">
       <NavigationMenuList>
         <NavigationMenuItem>
-          <Link href="/" passHref>
-            <NavigationMenuLink className={`${navigationMenuTriggerStyle()} font-extrabold text-xl`}>
+          <Link href="/" legacyBehavior passHref>
+            <NavigationMenuLink
+              className={`${navigationMenuTriggerStyle()} font-extrabold text-xl`}
+            >
               Notecz.
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
-      </NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger>Začínáme</NavigationMenuTrigger>
           <NavigationMenuContent>
@@ -79,13 +106,16 @@ export default function HomePage() {
                       Začínáme s Notecz.
                     </div>
                     <p className="text-sm leading-tight text-muted-foreground">
-                      Notecz[Nouc] je platforma, primárně určená pro studenty, pro jednoduché
-                      a efektivní tvoření a sdílení poznámek.
+                      Notecz[Nouc] je platforma, primárně určená pro studenty,
+                      pro jednoduché a efektivní tvoření a sdílení poznámek.
                     </p>
                   </a>
                 </NavigationMenuLink>
               </li>
-              <ListItem href="/docs/primitives/typography" title="Pravidla platformy">
+              <ListItem
+                href="/docs/primitives/typography"
+                title="Pravidla platformy"
+              >
                 Základní pravidla, platící na celé platformě, pro všechny :).
               </ListItem>
               <ListItem href="/docs" title="Tvorba poznámek">
@@ -124,14 +154,14 @@ export default function HomePage() {
       <NavigationMenuList>
         <NavigationMenuItem>
           <Link href="/signin" legacyBehavior passHref>
-            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink className={`${navigationMenuTriggerStyle()} bg-blue-600`}>
               Příhlásit se
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
-  );
+  )
 }
 
 const ListItem = React.forwardRef<
