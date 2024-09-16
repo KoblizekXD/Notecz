@@ -14,11 +14,10 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Heart } from 'lucide-react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -62,6 +61,9 @@ const components: { title: string; href: string; description: string }[] = [
 ];
 
 export default function HomePage() {
+
+  const isTodayFriday = new Date().getDay() === 5;
+
   return (
     <>
       <div
@@ -137,6 +139,13 @@ export default function HomePage() {
           </a>
         </div>
       </div>
+      <footer className='w-screen gap-y-4 flex justify-center flex-col items-center bg-zinc-900 h-[30vh]'>
+        <p className='flex items-center gap-x-2'>
+          Made with <Heart className='text-red-400' /> by UFC*
+        </p>
+        <p className='italic'>*Unified Femboy Corporation</p>
+        <p className={`${isTodayFriday && 'bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-400'}`}>Dnes {isTodayFriday ? 'je' : 'není'} femboy friday!</p>
+      </footer>
     </>
   );
 }
