@@ -14,7 +14,7 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -56,7 +56,7 @@ const components: { title: string; href: string; description: string }[] = [
 
 export default function HomePage() {
   return (
-    <div className='flex h-screen bg-[url("../../public/wave-haikei.svg")] bg-cover bg-no-repeat flex-col'>
+    <div className={`flex h-screen bg-cover bg-[url("/wave-haikei.svg")] bg-no-repeat flex-col`}>
       <NavBar />
       <div className='h-[30vh]' />
       <div className={'flex items-center gap-y-6 justify-center flex-col'}>
@@ -70,7 +70,7 @@ export default function HomePage() {
         </div>
       </div>
       <div className='flex mt-auto mb-[8vh] flex-col gap-y-4 items-center justify-center'>
-        <h3>Dozvědet se více</h3>
+        <h3 className='animate-bounce'>Dozvědet se více</h3>
         <Button variant='ghost' className='rounded-3xl' size='icon'>
           <ChevronDown className="h-4 w-4" />
         </Button>
