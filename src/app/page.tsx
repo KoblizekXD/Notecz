@@ -15,6 +15,13 @@ import {
 } from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -57,36 +64,86 @@ const components: { title: string; href: string; description: string }[] = [
 export default function HomePage() {
   return (
     <>
-    <div className={`flex h-screen bg-cover bg-[url("/wave-haikei.svg")] bg-no-repeat flex-col`}>
-      <NavBar />
-      <div className='h-[30vh]' />
-      <div className={'flex items-center gap-y-6 justify-center flex-col'}>
-        <h1 className='text-5xl font-extrabold'>Notecz</h1>
-        <p className='text-xl'>
-          Sdílení poznámek nikdy nebylo jednodušší. Vytvořte si účet a začněte hned!
-        </p>
-        <div className='gap-4 flex'>
-          <Button className='w-28' variant='default'>Hledat</Button>
-          <Button className='w-28' variant='secondary'>Vytvořit účet</Button>
+      <div
+        className={`flex h-screen bg-cover bg-[url("/wave-haikei.svg")] bg-no-repeat flex-col`}
+      >
+        <NavBar />
+        <div className="h-[30vh]" />
+        <div className={'flex items-center gap-y-6 justify-center flex-col'}>
+          <h1 className="text-5xl font-extrabold">Notecz</h1>
+          <p className="text-xl">
+            Sdílení poznámek nikdy nebylo jednodušší. Vytvořte si účet a začněte
+            hned!
+          </p>
+          <div className="gap-4 flex">
+            <Button className="w-28" variant="default">
+              Hledat
+            </Button>
+            <Button className="w-28" variant="secondary" asChild>
+              <Link href={'/signup'}>Vytvořit účet</Link>
+            </Button>
+          </div>
+        </div>
+        <div className="flex mt-auto mb-[8vh] flex-col gap-y-4 items-center justify-center">
+          <h3 className="animate-bounce">Dozvědet se více</h3>
+          <Button
+            onClick={() => {
+              document
+                .getElementById('section2')
+                ?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            variant="ghost"
+            className="rounded-3xl"
+            size="icon"
+          >
+            <ChevronDown className="h-4 w-4" />
+          </Button>
         </div>
       </div>
-      <div className='flex mt-auto mb-[8vh] flex-col gap-y-4 items-center justify-center'>
-        <h3 className='animate-bounce'>Dozvědet se více</h3>
-        <Button variant='ghost' className='rounded-3xl' size='icon'>
-          <ChevronDown className="h-4 w-4" />
-        </Button>
+      <div
+        id="section2"
+        className="flex w-full h-screen bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
+      >
+        <div className='bg-[url("/blob-haikei.svg")] justify-center gap-y-8 items-center flex flex-col bg-cover bg-black mt-2  w-full'>
+          <div className="flex gap-x-12 justify-center items-center">
+            <Card className="h-[60vh] w-[20vw]">
+              <CardHeader>
+                <CardTitle>Proč?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid
+                nam neque sed beatae maxime maiores voluptatum quas natus
+                nostrum quod cumque ducimus eaque, sapiente, rem exercitationem
+                tempore, quia excepturi aperiam.
+              </CardContent>
+            </Card>
+            <Card className="h-[60vh] w-[20vw]">
+              <CardHeader>
+                <CardTitle>Sočka?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid
+                nam neque sed beatae maxime maiores voluptatum quas natus
+                nostrum quod cumque ducimus eaque, sapiente, rem exercitationem
+                tempore, quia excepturi aperiam.
+              </CardContent>
+            </Card>
+          </div>
+          <a
+            href="mailto:janprokupek04@gmail.com"
+            className="text-neutral-500 underline"
+          >
+            Máš otázku? Napiš mi mail!
+          </a>
+        </div>
       </div>
-    </div>
-    <div className='flex h-screen bg-red-500'>
-
-    </div>
     </>
   );
 }
 
 function NavBar() {
   return (
-    <NavigationMenu className="justify-between max-h-[8vh] h-[8vh] backdrop-blur-lg border-b-gray-700 border-b px-2 py-2">
+    <NavigationMenu className="justify-between max-h-[8vh] h-[8vh] backdrop-blur-lg border-b-gray-700 border-b px-4 py-2">
       <NavigationMenuList>
         <NavigationMenuItem>
           <Link href="/" legacyBehavior passHref>
@@ -159,14 +216,16 @@ function NavBar() {
       <NavigationMenuList>
         <NavigationMenuItem>
           <Link href="/signin" legacyBehavior passHref>
-            <NavigationMenuLink className={`${navigationMenuTriggerStyle()} bg-blue-600`}>
+            <NavigationMenuLink
+              className={`${navigationMenuTriggerStyle()} bg-blue-600`}
+            >
               Příhlásit se
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
-  )
+  );
 }
 
 const ListItem = React.forwardRef<
