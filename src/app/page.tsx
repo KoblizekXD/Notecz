@@ -73,7 +73,7 @@ export default function HomePage() {
         <div className="h-[30vh]" />
         <div className={'flex items-center gap-y-6 justify-center flex-col'}>
           <h1 className="text-5xl font-extrabold">Notecz</h1>
-          <p className="text-xl">
+          <p className="text-xl text-center">
             Sdílení poznámek nikdy nebylo jednodušší. Vytvořte si účet a začněte
             hned!
           </p>
