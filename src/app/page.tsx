@@ -56,6 +56,7 @@ const components: { title: string; href: string; description: string }[] = [
 
 export default function HomePage() {
   return (
+    <>
     <div className={`flex h-screen bg-cover bg-[url("/wave-haikei.svg")] bg-no-repeat flex-col`}>
       <NavBar />
       <div className='h-[30vh]' />
@@ -76,10 +77,14 @@ export default function HomePage() {
         </Button>
       </div>
     </div>
+    <div className='flex h-screen bg-red-500'>
+
+    </div>
+    </>
   );
 }
 
-export function NavBar() {
+function NavBar() {
   return (
     <NavigationMenu className="justify-between max-h-[8vh] h-[8vh] backdrop-blur-lg border-b-gray-700 border-b px-2 py-2">
       <NavigationMenuList>
