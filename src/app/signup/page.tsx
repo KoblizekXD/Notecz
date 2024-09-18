@@ -1,4 +1,5 @@
 'use client';
+
 import { t } from 'elysia';
 import { typeboxResolver } from '@hookform/resolvers/typebox';
 
@@ -16,17 +17,34 @@ import { useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { ArrowLeftIcon } from 'lucide-react';
+import { elysia } from '@/lib/util';
+import { treaty } from '@elysiajs/eden';
 
 const typ = t.Object({
-  t: t.String(),
+  username: t.String({ minLength: 3, maxLength: 20 }),
+  email: t.String({ format: 'email' }),
+  password: t.String({ minLength: 8 }),
 });
 
 export default function SignUp() {
-  const form = useForm({
-    resolver: typeboxResolver(typ),
-  });
+  const onSubmit = async (data: any) => {
+    const t = treaty<typeof elysia>('localhost:3000');
+    const resp = await t.api.auth.signup.post({
+      username: data.username,
+      email: data.email,
+      password: data.password,
+    });
+    console.log(resp);
+  };
 
-  const onSubmit = (data: any) => {};
+  const form = useForm<typeof typ>({
+    resolver: typeboxResolver(typ),
+    defaultValues: {
+      username: '',
+      email: '',
+      password: '',
+    }
+  });
 
   return (
     <main className={'flex justify-center items-center h-screen bg-no-repeat bg-cover bg-[url("/wave-haikei-2.svg")]'}>
@@ -55,7 +73,7 @@ export default function SignUp() {
           />
           <FormField
             control={form.control}
-            name="password"
+            name="email"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>E-mail</FormLabel>
@@ -79,7 +97,7 @@ export default function SignUp() {
               </FormItem>
             )}
           />
-          <Button className='flex justify-center items-center' variant={'secondary'} type="submit">Jdeme na to!</Button>
+          <Button className='flex justify-center items-center font-bold' variant={'secondary'} type="submit">Jdeme na to!</Button>
         </form>
       </Form>
     </main>
