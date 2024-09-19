@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { getCookie, getCookies } from 'cookies-next';
 
 import { cn } from '@/lib/utils';
 import {
@@ -16,6 +17,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Heart } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Lucia } from 'lucia';
+import { lucia } from '@/lib/util';
 
 const components: { title: string; href: string; description: string }[] = [
   {

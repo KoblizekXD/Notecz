@@ -8,6 +8,7 @@ import { Lucia, TimeSpan } from 'lucia';
 import pino from 'pino';
 import { AppModule } from './authlib';
 import swagger from '@elysiajs/swagger';
+import { cookies } from 'next/headers';
 
 export const prisma = new PrismaClient();
 export const logger = pino();

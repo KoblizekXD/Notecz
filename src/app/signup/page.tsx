@@ -29,6 +29,7 @@ const typ = t.Object({
 });
 
 export default function SignUp() {
+
   const onSubmit = async (data: any) => {
     const t = treaty<typeof elysia>('localhost:3000');
     const resp = await t.api.auth.signup.post({
@@ -38,7 +39,7 @@ export default function SignUp() {
     });
 
     if (resp.status === 409) {
-      toast.error('Email nebo uživatelské jméno je již využito někým jiným!');
+      toast.error('Email nebo uživatelské jméno je již zabrané!');
     }
   };
 
