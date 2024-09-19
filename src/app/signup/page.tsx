@@ -19,6 +19,8 @@ import Link from 'next/link';
 import { ArrowLeftIcon } from 'lucide-react';
 import { elysia } from '@/lib/util';
 import { treaty } from '@elysiajs/eden';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 
 const typ = t.Object({
   username: t.String({ minLength: 3, maxLength: 20 }),
@@ -34,7 +36,10 @@ export default function SignUp() {
       email: data.email,
       password: data.password,
     });
-    console.log(resp);
+
+    if (resp.status === 409) {
+      toast.error('Email nebo uživatelské jméno je již využito někým jiným!');
+    }
   };
 
   const form = useForm<typeof typ>({
@@ -48,11 +53,12 @@ export default function SignUp() {
 
   return (
     <main className={'flex justify-center items-center h-screen bg-no-repeat bg-cover bg-[url("/wave-haikei-2.svg")]'}>
+      <Toaster className='bg-red-400' />
       <Link href={'/'}>
         <ArrowLeftIcon className='absolute top-4 left-4 cursor-pointer' />
       </Link>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 border p-8 rounded-xl">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 border p-8 rounded-xl bg-[#0A0A0A]">
           <h1 className='font-extrabold text-xl'>Vytvořit účet</h1>
           <h2>Nezapoměň si vybrat silné heslo, které nikdo neuhádne!</h2>
           <FormField
