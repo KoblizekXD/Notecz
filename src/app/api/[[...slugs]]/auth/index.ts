@@ -15,24 +15,26 @@ export const auth = new Elysia({ prefix: '/auth' })
         email: body.email,
         name: body.name,
         password: await encode(body.password),
-      }).catch(e => {
-        if (e instanceof PrismaClientKnownRequestError)
-          return e
+      }).catch((e) => {
+        if (e instanceof PrismaClientKnownRequestError) return e;
       });
 
       if (user instanceof PrismaClientKnownRequestError) {
-        return error('Conflict', { message: 'Validation error.', details: user.message });
+        return error('Conflict', {
+          message: 'Validation error.',
+          details: user.message,
+        });
       } else if (user) {
         const session = (await lucia.createSession(user.id, {})).id;
-      const cookie = lucia.createSessionCookie(session);
-      set.headers['set-cookie'] = cookie.serialize();
-      logger.info(`New account created: ${user.username}(${user.id})`);
-      return Response.json(
-        {
-          expiresIn: process.env.TOKEN_EXP,
-        },
-        { status: 201 },
-      );
+        const cookie = lucia.createSessionCookie(session);
+        set.headers['set-cookie'] = cookie.serialize();
+        logger.info(`New account created: ${user.username}(${user.id})`);
+        return Response.json(
+          {
+            expiresIn: process.env.TOKEN_EXP,
+          },
+          { status: 201 },
+        );
       }
     },
     {
@@ -76,8 +78,8 @@ export const auth = new Elysia({ prefix: '/auth' })
                   message: t.String({ default: 'Email already used.' }),
                 }),
               },
-            }
-          }
+            },
+          },
         },
       },
     },

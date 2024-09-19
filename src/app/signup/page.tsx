@@ -48,18 +48,25 @@ export default function SignUp() {
       username: '',
       email: '',
       password: '',
-    }
+    },
   });
 
   return (
-    <main className={'flex justify-center items-center h-screen bg-no-repeat bg-cover bg-[url("/wave-haikei-2.svg")]'}>
-      <Toaster className='bg-red-400' />
+    <main
+      className={
+        'flex justify-center items-center h-screen bg-no-repeat bg-cover bg-[url("/wave-haikei-2.svg")]'
+      }
+    >
+      <Toaster className="bg-red-400" />
       <Link href={'/'}>
-        <ArrowLeftIcon className='absolute top-4 left-4 cursor-pointer' />
+        <ArrowLeftIcon className="absolute top-4 left-4 cursor-pointer" />
       </Link>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 border p-8 rounded-xl bg-[#0A0A0A]">
-          <h1 className='font-extrabold text-xl'>Vytvořit účet</h1>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4 border p-8 rounded-xl bg-[#0A0A0A]"
+        >
+          <h1 className="font-extrabold text-xl">Vytvořit účet</h1>
           <h2>Nezapoměň si vybrat silné heslo, které nikdo neuhádne!</h2>
           <FormField
             control={form.control}
@@ -103,7 +110,13 @@ export default function SignUp() {
               </FormItem>
             )}
           />
-          <Button className='flex justify-center items-center font-bold' variant={'secondary'} type="submit">Jdeme na to!</Button>
+          <Button
+            className="flex justify-center items-center font-bold"
+            variant={'secondary'}
+            type="submit"
+          >
+            Jdeme na to!
+          </Button>
         </form>
       </Form>
     </main>
