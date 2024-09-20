@@ -25,6 +25,12 @@ export const lucia = new Lucia(new PrismaAdapter(prisma.session, prisma.user), {
   ),
 });
 
+declare module 'lucia' {
+  interface Register {
+    Lucia: typeof lucia;
+  }
+}
+
 export const createUser = async (user: Prisma.UserCreateInput) => {
   return await prisma.user.create({
     data: user,
