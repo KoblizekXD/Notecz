@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { getCookie, getCookies } from 'cookies-next';
 
 import { cn } from '@/lib/utils';
 import {
@@ -17,8 +16,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Heart } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Lucia } from 'lucia';
-import { lucia } from '@/lib/util';
+import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -60,6 +59,18 @@ const components: { title: string; href: string; description: string }[] = [
 
 export default function HomePage() {
   const isTodayFriday = new Date().getDay() === 5;
+  const params = useSearchParams();
+
+  const x = params.get('signedOut');
+
+  React.useEffect(() => {
+    if (x !== null) {
+      if (x === 'true')
+        toast.success('Byl jsi úspěšně odhlášen.', { duration: 2000 });
+      else if (x === 'false')
+        toast.error('Nemohli jsmě tě odhlásit, protože nejsi přihlášen.');
+    }
+  }, []);
 
   return (
     <>

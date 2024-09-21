@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Inter, Poppins } from 'next/font/google';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -23,7 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.className}`}>{children}</body>
+      <body className={`${poppins.className}`}>
+        <Toaster className="bg" />
+        <main>{children}</main>
+      </body>
     </html>
   );
 }
