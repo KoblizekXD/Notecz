@@ -8,6 +8,7 @@ import { Lucia, TimeSpan } from 'lucia';
 import pino from 'pino';
 import { AppModule } from './authlib';
 import swagger from '@elysiajs/swagger';
+import { cookies } from 'next/headers';
 
 export const prisma = new PrismaClient();
 export const logger = pino();
@@ -23,6 +24,12 @@ export const lucia = new Lucia(new PrismaAdapter(prisma.session, prisma.user), {
     's',
   ),
 });
+
+declare module 'lucia' {
+  interface Register {
+    Lucia: typeof lucia;
+  }
+}
 
 export const createUser = async (user: Prisma.UserCreateInput) => {
   return await prisma.user.create({

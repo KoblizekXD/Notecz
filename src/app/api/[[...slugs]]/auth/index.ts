@@ -1,6 +1,7 @@
 import { Elysia, error, t } from 'elysia';
 import { findByEmail, createUser, encode, verify } from '@/lib/util';
 import { logger, lucia } from '@/lib/util';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 export const auth = new Elysia({ prefix: '/auth' })
   .post(
@@ -14,18 +15,27 @@ export const auth = new Elysia({ prefix: '/auth' })
         email: body.email,
         name: body.name,
         password: await encode(body.password),
+      }).catch((e) => {
+        if (e instanceof PrismaClientKnownRequestError) return e;
       });
 
-      const session = (await lucia.createSession(user.id, {})).id;
-      const cookie = lucia.createSessionCookie(session);
-      set.headers['set-cookie'] = cookie.serialize();
-      logger.info(`New account created: ${user.username}(${user.id})`);
-      return Response.json(
-        {
-          expiresIn: process.env.TOKEN_EXP,
-        },
-        { status: 201 },
-      );
+      if (user instanceof PrismaClientKnownRequestError) {
+        return error('Conflict', {
+          message: 'Validation error.',
+          details: user.message,
+        });
+      } else if (user) {
+        const session = (await lucia.createSession(user.id, {})).id;
+        const cookie = lucia.createSessionCookie(session);
+        set.headers['set-cookie'] = cookie.serialize();
+        logger.info(`New account created: ${user.username}(${user.id})`);
+        return Response.json(
+          {
+            expiresIn: process.env.TOKEN_EXP,
+          },
+          { status: 201 },
+        );
+      }
     },
     {
       body: t.Object({
@@ -56,6 +66,16 @@ export const auth = new Elysia({ prefix: '/auth' })
                 schema: t.Object({
                   message: t.String({ default: 'Validation failed.' }),
                   details: t.String(),
+                }),
+              },
+            },
+          },
+          409: {
+            description: 'The email is already in use',
+            content: {
+              'application/json': {
+                schema: t.Object({
+                  message: t.String({ default: 'Email already used.' }),
                 }),
               },
             },

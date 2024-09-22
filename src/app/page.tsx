@@ -15,12 +15,9 @@ import {
 } from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Heart } from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -61,8 +58,19 @@ const components: { title: string; href: string; description: string }[] = [
 ];
 
 export default function HomePage() {
-
   const isTodayFriday = new Date().getDay() === 5;
+  const params = useSearchParams();
+
+  const x = params.get('signedOut');
+
+  React.useEffect(() => {
+    if (x !== null) {
+      if (x === 'true')
+        toast.success('Byl jsi úspěšně odhlášen.', { duration: 2000 });
+      else if (x === 'false')
+        toast.error('Nemohli jsmě tě odhlásit, protože nejsi přihlášen.');
+    }
+  }, []);
 
   return (
     <>
@@ -139,12 +147,16 @@ export default function HomePage() {
           </a>
         </div>
       </div>
-      <footer className='w-screen gap-y-4 flex justify-center flex-col items-center bg-zinc-900 h-[30vh]'>
-        <p className='flex items-center gap-x-2'>
-          Made with <Heart className='text-red-400' /> by UFC*
+      <footer className="w-screen gap-y-4 flex justify-center flex-col items-center bg-zinc-900 h-[30vh]">
+        <p className="flex items-center gap-x-2">
+          Made with <Heart className="text-red-400" /> by UFC*
         </p>
-        <p className='italic'>*Unified Femboy Corporation</p>
-        <p className={`${isTodayFriday && 'bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-400'}`}>Dnes {isTodayFriday ? 'je' : 'není'} femboy friday!</p>
+        <p className="italic">*Unified Femboy Corporation</p>
+        <p
+          className={`${isTodayFriday && 'bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-400'}`}
+        >
+          Dnes {isTodayFriday ? 'je' : 'není'} femboy friday!
+        </p>
       </footer>
     </>
   );
