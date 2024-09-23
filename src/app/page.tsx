@@ -57,7 +57,11 @@ const components: { title: string; href: string; description: string }[] = [
   },
 ];
 
-export default function HomePage() {
+export default function Home() {
+  return <React.Suspense><HomePage /></React.Suspense>
+}
+
+function HomePage() {
   const isTodayFriday = new Date().getDay() === 5;
   const params = useSearchParams();
 
