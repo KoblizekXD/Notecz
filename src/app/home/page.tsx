@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronsUpDown, PlusIcon, Check } from 'lucide-react';
+import { ChevronsUpDown, PlusIcon, Check, Menu } from 'lucide-react';
 
 import * as React from 'react';
 import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu';
@@ -52,12 +52,41 @@ function NavMenu() {
   );
 }
 
+function getPartOfDay(): 'ráno' | 'odpoledne' | 'večer' {
+  const hours = new Date().getHours();
+  if (hours < 12) {
+    return 'ráno';
+  } else if (hours < 18) {
+    return 'odpoledne';
+  } else {
+    return 'večer';
+  }
+}
+
+function SideBar() {
+
+  const [shown, setShown] = React.useState(true);
+
+  return (
+    <div className={`h-full border-r ease-in-out delay-500 transition-transform ${shown ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className='flex p-2 gap-x-12 items-center'>
+        <h1 className='font-semibold text-lg'>Vy</h1>
+        <Button onClick={() => setShown(false)} size={'icon'}>
+          <Menu />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState('');
 
+  const dayPart = getPartOfDay();
+
   return (
-    <main>
+    <main className='h-screen flex flex-col'>
       <Drawer>
         <DrawerTrigger asChild>
           <Button
@@ -133,6 +162,12 @@ export default function App() {
         </DrawerContent>
       </Drawer>
       <NavMenu />
+      <div className='flex flex-1'>
+        <SideBar />
+        <div className='m-4 font-extrabold text-3xl'>
+          <h1>Dobr{dayPart === 'večer' ? 'ý' : 'é'} {dayPart},</h1>
+        </div>
+      </div>
     </main>
   );
 }

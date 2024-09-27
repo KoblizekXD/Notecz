@@ -14,7 +14,7 @@ const inter = Inter({
 
 const poppins = Poppins({
   subsets: ['latin-ext'],
-  weight: ['400', '700'],
+  weight: ['400', '700', '500', '600'],
 });
 
 export default function RootLayout({
