@@ -30,6 +30,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { MenubarSeparator } from '@/components/ui/menubar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const noteTypes = [
   { value: 'note', label: 'Klasická poznámka' },
@@ -92,7 +93,7 @@ function SideBar() {
   const [shown, setShown] = React.useState(true);
 
   return (
-    <div className={`h-full gap-y-8 p-4 flex flex-col ease-in-out transition-[width] duration-300 overflow-hidden ${!shown ? 'w-0' : 'w-56 border-r'}`}>
+    <div className={`h-full gap-y-8 flex flex-col ease-in-out transition-[width] duration-300 overflow-hidden ${!shown ? 'w-0' : 'w-56 border-r p-4'}`}>
       <div className='flex gap-x-12 justify-between items-center'>
         <h1 className='font-semibold text-lg'>Vy</h1>
         <Button onClick={() => setShown(false)} size={'icon'}>
@@ -189,8 +190,38 @@ export default function App() {
       <NavMenu />
       <div className='flex flex-1'>
         <SideBar />
-        <div className='m-4 font-extrabold text-3xl'>
-          <h1>Dobr{dayPart === 'večer' ? 'ý' : 'é'} {dayPart},</h1>
+        <div className='m-4 flex flex-1 flex-col'>
+          <h1 className='font-extrabold text-3xl'>Dobr{dayPart === 'večer' ? 'ý' : 'é'} {dayPart},</h1>
+          <h2 className='font-semibold text-2xl'>Test User</h2>
+          <div className='flex-1 pt-28 flex flex-col gap-y-4'>
+            <h3 className='text-xl'>Tvoje poznámky</h3>
+            <div className='flex gap-x-4'>
+              <Card className='w-48'>
+                <CardHeader>
+                  <CardTitle className='text-lg'>Poznámka 1</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Kys</p>
+                </CardContent>
+              </Card>
+              <Card className='w-48'>
+                <CardHeader>
+                  <CardTitle className='text-lg'>Poznámka 1</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Kys</p>
+                </CardContent>
+              </Card>
+              <Card className='bg-transparent w-48 border-dashed h-64'>
+                <CardContent className='text-white p-4 flex-col gap-y-8 flex justify-center text-center items-center'>
+                  <p>Ještě nemáš žádné poznámky, vytvoř novou kliknutím na plus!</p>
+                  <div className=''>
+                    <PlusIcon />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </main>
