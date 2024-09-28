@@ -57,6 +57,9 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
     },
+    transitionProperty: {
+      'width': 'width'
+    }
   },
   plugins: [require('tailwindcss-animate')],
 };

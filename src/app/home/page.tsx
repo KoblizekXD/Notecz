@@ -18,9 +18,7 @@ import {
 
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
@@ -68,8 +66,8 @@ function SideBar() {
   const [shown, setShown] = React.useState(true);
 
   return (
-    <div className={`h-full border-r ease-in-out delay-500 transition-transform ${shown ? 'translate-x-0' : '-translate-x-full'}`}>
-      <div className='flex p-2 gap-x-12 items-center'>
+    <div className={`h-full border-r ease-in-out transition-[width] duration-300 overflow-hidden ${!shown ? 'w-0' : 'w-56'}`}>
+      <div className='flex p-4 gap-x-12 justify-between items-center'>
         <h1 className='font-semibold text-lg'>Vy</h1>
         <Button onClick={() => setShown(false)} size={'icon'}>
           <Menu />
