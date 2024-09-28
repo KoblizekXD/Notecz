@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import { MenubarSeparator } from '@/components/ui/menubar';
 
 const noteTypes = [
   { value: 'note', label: 'Klasická poznámka' },
@@ -61,18 +62,44 @@ function getPartOfDay(): 'ráno' | 'odpoledne' | 'večer' {
   }
 }
 
+function SideBarItem({ children, onSelect, selected }: { selected: boolean; children: React.ReactNode; onSelect?: () => void }) {
+
+  return (
+    <div className={`select-none ${selected && 'font-bold'}`} onClick={() => {
+      if (onSelect) onSelect();
+    }}>
+      {children}
+    </div>
+  );
+}
+
+function SideBarListing({ items }: { items: string[] }) {
+  const [selected, setSelected] = React.useState(0);
+  return (
+    <div className='flex-1 flex-col flex gap-y-2'>
+      {items.map((item, i) => {
+        if (item === 'separator') {
+          return <MenubarSeparator key={i} />;
+        }
+        return <SideBarItem onSelect={() => setSelected(i)} selected={i == selected} key={i}>{item}</SideBarItem>
+      })}
+    </div>
+  );
+}
+
 function SideBar() {
 
   const [shown, setShown] = React.useState(true);
 
   return (
-    <div className={`h-full border-r ease-in-out transition-[width] duration-300 overflow-hidden ${!shown ? 'w-0' : 'w-56'}`}>
-      <div className='flex p-4 gap-x-12 justify-between items-center'>
+    <div className={`h-full gap-y-8 p-4 flex flex-col ease-in-out transition-[width] duration-300 overflow-hidden ${!shown ? 'w-0' : 'w-56 border-r'}`}>
+      <div className='flex gap-x-12 justify-between items-center'>
         <h1 className='font-semibold text-lg'>Vy</h1>
         <Button onClick={() => setShown(false)} size={'icon'}>
           <Menu />
         </Button>
       </div>
+      <SideBarListing items={['Vše', 'Oblíbené', 'Rozpracované', 'Soukromé', 'separator', 'Textové poznámky', 'Myšlenkové mapy', 'Dokumenty']} />
     </div>
   );
 }
