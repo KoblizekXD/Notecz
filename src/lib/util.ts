@@ -2,12 +2,13 @@ import { auth } from '@/app/api/[[...slugs]]/auth';
 import { user } from '@/app/api/[[...slugs]]/user';
 import { notes } from '@/app/api/[[...slugs]]/user/note';
 import { PrismaAdapter } from '@lucia-auth/adapter-prisma';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient, } from '@prisma/client';
 import Elysia from 'elysia';
-import { Lucia, TimeSpan } from 'lucia';
+import { Lucia, Session, TimeSpan, User } from 'lucia';
 import pino from 'pino';
 import { AppModule } from './authlib';
 import swagger from '@elysiajs/swagger';
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 
 export const prisma = new PrismaClient();
@@ -93,3 +94,30 @@ export const elysia = new Elysia({ prefix: '/api' })
   .use(auth)
   .use(user)
   .use(notes);
+
+
+export const validateRequest = cache(
+	async (): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
+		const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+		if (!sessionId) {
+			return {
+				user: null,
+				session: null
+			};
+		}
+
+		const result = await lucia.validateSession(sessionId);
+		// next.js throws when you attempt to set cookie when rendering page
+		try {
+			if (result.session && result.session.fresh) {
+				const sessionCookie = lucia.createSessionCookie(result.session.id);
+				cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+			}
+			if (!result.session) {
+				const sessionCookie = lucia.createBlankSessionCookie();
+				cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+			}
+		} catch {}
+		return result;
+	}
+);

@@ -1,9 +1,6 @@
-'use client';
-
 import { ChevronsUpDown, PlusIcon, Check, Menu } from 'lucide-react';
 
 import * as React from 'react';
-import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -31,6 +28,9 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { MenubarSeparator } from '@/components/ui/menubar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { validateRequest } from '@/lib/util';
+import { HomePage } from './clientPage';
+import { redirect } from 'next/navigation';
 
 const noteTypes = [
   { value: 'note', label: 'Klasická poznámka' },
@@ -38,6 +38,8 @@ const noteTypes = [
   { value: 'document', label: 'Dokument' },
   { value: 'notes', label: 'Skupina poznámek' },
 ];
+
+const filters = ['Vše', 'Oblíbené', 'Rozpracované', 'Soukromé', 'Textové poznámky', 'Myšlenkové mapy', 'Dokumenty']
 
 function NavMenu() {
   return (
@@ -74,7 +76,7 @@ function SideBarItem({ children, onSelect, selected }: { selected: boolean; chil
   );
 }
 
-function SideBarListing({ items }: { items: string[] }) {
+function SideBarListing({ items, onSelect }: { items: string[], onSelect: (selected: string) => void }) {
   const [selected, setSelected] = React.useState(0);
   return (
     <div className='flex-1 flex-col flex gap-y-2'>
@@ -82,13 +84,16 @@ function SideBarListing({ items }: { items: string[] }) {
         if (item === 'separator') {
           return <MenubarSeparator key={i} />;
         }
-        return <SideBarItem onSelect={() => setSelected(i)} selected={i == selected} key={i}>{item}</SideBarItem>
+        return <SideBarItem onSelect={() => {
+          setSelected(i);
+          onSelect(item);
+        }} selected={i == selected} key={i}>{item}</SideBarItem>
       })}
     </div>
   );
 }
 
-function SideBar() {
+function SideBar({ onSelect }: { onSelect: (selected: string) => void }) {
 
   const [shown, setShown] = React.useState(true);
 
@@ -100,130 +105,16 @@ function SideBar() {
           <Menu />
         </Button>
       </div>
-      <SideBarListing items={['Vše', 'Oblíbené', 'Rozpracované', 'Soukromé', 'separator', 'Textové poznámky', 'Myšlenkové mapy', 'Dokumenty']} />
+      <SideBarListing onSelect={onSelect} items={filters.toSpliced(4, 0, 'separator')} />
     </div>
   );
 }
 
-export default function App() {
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState('');
+export default async function App() {
+  
+  const { user } = await validateRequest();
 
-  const dayPart = getPartOfDay();
+  if (!user) redirect('/signin');
 
-  return (
-    <main className='h-screen flex flex-col'>
-      <Drawer>
-        <DrawerTrigger asChild>
-          <Button
-            variant={'outline'}
-            size="icon"
-            className="rounded-xl scale-150 absolute right-8 border-0 bg-slate-900 bottom-8"
-          >
-            <PlusIcon className="fill-[url(#MyGradient)]" />
-          </Button>
-        </DrawerTrigger>
-        <DrawerContent>
-          <div className="mx-auto flex gap-y-4 flex-col w-full max-w-sm">
-            <DrawerHeader>
-              <DrawerTitle className="text-center">
-                Vytvořit novou poznámku
-              </DrawerTitle>
-            </DrawerHeader>
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={open}
-                  className=""
-                >
-                  {value
-                    ? noteTypes.find((framework) => framework.value === value)
-                        ?.label
-                    : 'Vyber typ poznámky'}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
-                <Command>
-                  <CommandList>
-                    <CommandGroup>
-                      {noteTypes.map((framework) => (
-                        <CommandItem
-                          key={framework.value}
-                          value={framework.value}
-                          onSelect={(currentValue) => {
-                            setValue(
-                              currentValue === value ? '' : currentValue,
-                            );
-                            setOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              value === framework.value
-                                ? 'opacity-100'
-                                : 'opacity-0',
-                            )}
-                          />
-                          {framework.label}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            <Input placeholder="Jméno poznámky" />
-            <Input placeholder="Popis" />
-            <DrawerFooter>
-              <Button>Vytvořit</Button>
-              <DrawerClose asChild>
-                <Button variant="outline">Zrušit</Button>
-              </DrawerClose>
-            </DrawerFooter>
-          </div>
-        </DrawerContent>
-      </Drawer>
-      <NavMenu />
-      <div className='flex flex-1'>
-        <SideBar />
-        <div className='m-4 flex flex-1 flex-col'>
-          <h1 className='font-extrabold text-3xl'>Dobr{dayPart === 'večer' ? 'ý' : 'é'} {dayPart},</h1>
-          <h2 className='font-semibold text-2xl'>Test User</h2>
-          <div className='flex-1 pt-28 flex flex-col gap-y-4'>
-            <h3 className='text-xl'>Tvoje poznámky</h3>
-            <div className='flex gap-x-4'>
-              <Card className='w-48'>
-                <CardHeader>
-                  <CardTitle className='text-lg'>Poznámka 1</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Kys</p>
-                </CardContent>
-              </Card>
-              <Card className='w-48'>
-                <CardHeader>
-                  <CardTitle className='text-lg'>Poznámka 1</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Kys</p>
-                </CardContent>
-              </Card>
-              <Card className='bg-transparent w-48 border-dashed h-64'>
-                <CardContent className='text-white p-4 flex-col gap-y-8 flex justify-center text-center items-center'>
-                  <p>Ještě nemáš žádné poznámky, vytvoř novou kliknutím na plus!</p>
-                  <div className=''>
-                    <PlusIcon />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-  );
+  return <HomePage />;
 }
