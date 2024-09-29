@@ -30,7 +30,8 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { MenubarSeparator } from '@/components/ui/menubar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { validateRequest } from '@/lib/util';
+import { elysia, validateRequest } from '@/lib/util';
+import { treaty } from '@elysiajs/eden';
 
 const noteTypes = [
   { value: 'note', label: 'Klasická poznámka' },
@@ -110,12 +111,23 @@ function SideBar({ onSelect }: { onSelect: (selected: string) => void }) {
   );
 }
 
-export function HomePage() {
+export function HomePage({ id }: { id: string }) {
   const [open, setOpen] = React.useState(false);
   const [activeFilter, setActiveFilter] = React.useState(filters[0]);
   const [value, setValue] = React.useState('');
+  const [user, setUser] = React.useState<any>({});
 
   const dayPart = getPartOfDay();
+
+  const t = treaty<typeof elysia>('localhost:3000');
+
+  React.useEffect(() => {
+    const fetchUser = async () => {
+      setUser((await t.api.user({ id: id }).get()).data);
+    }
+
+    fetchUser();
+  }, []);
 
   return (
     <main className='h-screen flex flex-col'>
@@ -198,7 +210,7 @@ export function HomePage() {
         <SideBar onSelect={item => setActiveFilter(item)} />
         <div className='m-4 flex flex-1 flex-col'>
           <h1 className='font-extrabold text-3xl'>Dobr{dayPart === 'večer' ? 'ý' : 'é'} {dayPart},</h1>
-          <h2 className='font-semibold text-2xl'>Test User</h2>
+          <h2 className='font-semibold text-2xl'>{user.username || 'Načítání...'}</h2>
           <div className='flex-1 pt-28 flex flex-col gap-y-4'>
             <h3 className='text-xl'>Tvoje poznámky ({activeFilter})</h3>
             <div className='flex gap-x-4'>

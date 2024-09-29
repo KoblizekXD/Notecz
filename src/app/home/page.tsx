@@ -116,5 +116,5 @@ export default async function App() {
 
   if (!user) redirect('/signin');
 
-  return <HomePage />;
+  return <HomePage id={user.id} />;
 }
