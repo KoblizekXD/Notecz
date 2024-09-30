@@ -32,6 +32,7 @@ import { MenubarSeparator } from '@/components/ui/menubar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { elysia, validateRequest } from '@/lib/util';
 import { treaty } from '@elysiajs/eden';
+import { Note } from '@prisma/client';
 
 const noteTypes = [
   { value: 'note', label: 'Klasická poznámka' },
@@ -111,11 +112,25 @@ function SideBar({ onSelect }: { onSelect: (selected: string) => void }) {
   );
 }
 
+function createNotePreview(note: Note) {
+  return (
+      <Card key={note.id} className='w-48'>
+        <CardHeader>
+          <CardTitle className='text-lg'>{note.title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {note.content?.substring(0, 100) + '...'}
+        </CardContent>
+      </Card>
+  );
+}
+
 export function HomePage({ id }: { id: string }) {
   const [open, setOpen] = React.useState(false);
   const [activeFilter, setActiveFilter] = React.useState(filters[0]);
   const [value, setValue] = React.useState('');
   const [user, setUser] = React.useState<any>({});
+  const [notes, setNotes] = React.useState<React.ReactNode[]>([]);
 
   const dayPart = getPartOfDay();
 
@@ -123,7 +138,21 @@ export function HomePage({ id }: { id: string }) {
 
   React.useEffect(() => {
     const fetchUser = async () => {
-      setUser((await t.api.user({ id: id }).get()).data);
+      const data = (await t.api.user.me.get()).data;
+      setUser(data);
+      setNotes(data!!.notes.map((note: Note) => createNotePreview(note)));
+      if (notes.length === 0) {
+        setNotes([ 
+          <Card key={0} className='bg-transparent w-48 border-dashed h-64'>
+              <CardContent className='text-white p-4 flex-col gap-y-8 flex justify-center text-center items-center'>
+              <p>Ještě nemáš žádné poznámky, vytvoř novou kliknutím na plus!</p>
+              <div>
+                <PlusIcon />
+              </div>
+            </CardContent>
+          </Card>
+        ]);
+      }
     }
 
     fetchUser();
@@ -214,30 +243,7 @@ export function HomePage({ id }: { id: string }) {
           <div className='flex-1 pt-28 flex flex-col gap-y-4'>
             <h3 className='text-xl'>Tvoje poznámky ({activeFilter})</h3>
             <div className='flex gap-x-4'>
-              <Card className='w-48'>
-                <CardHeader>
-                  <CardTitle className='text-lg'>Poznámka 1</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Kys</p>
-                </CardContent>
-              </Card>
-              <Card className='w-48'>
-                <CardHeader>
-                  <CardTitle className='text-lg'>Poznámka 1</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Kys</p>
-                </CardContent>
-              </Card>
-              <Card className='bg-transparent w-48 border-dashed h-64'>
-                <CardContent className='text-white p-4 flex-col gap-y-8 flex justify-center text-center items-center'>
-                  <p>Ještě nemáš žádné poznámky, vytvoř novou kliknutím na plus!</p>
-                  <div>
-                    <PlusIcon />
-                  </div>
-                </CardContent>
-              </Card>
+              {...notes}
             </div>
           </div>
         </div>
