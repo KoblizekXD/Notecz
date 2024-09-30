@@ -1,6 +1,7 @@
 import Elysia, { error, t } from 'elysia';
 import { AppModule } from '@/lib/authlib';
 import { prisma } from '@/lib/util';
+import { User } from '@prisma/client';
 
 export const user = new Elysia({ prefix: '/user' })
   .use(AppModule)
@@ -60,6 +61,33 @@ export const user = new Elysia({ prefix: '/user' })
       },
     },
   )
+  .get('/me', async ({ authManager }) => {
+    const user = await authManager.getAccessingUser();
+    
+    if (!user) return error('Unauthorized');
+
+    const notes = await prisma.note.findMany({
+      where: {
+        authorId: user.id
+      }
+    })
+
+    const { password, permissions, ...userWithoutSensitiveFields } = user;
+    return { ...userWithoutSensitiveFields, notes };
+  }, {
+    detail: {
+      tags: ['User'],
+      description: 'Returns information about the currently authenticated user',
+      responses: {
+        200: {
+          description: 'Request was successful, the response body will contain information about the user and their notes',
+        },
+        401: {
+          description: 'User is not authenticated, the response body will contain an error message',
+        }
+      }
+    }
+  })
   .get(
     '/:id/notes',
     async ({ params }) => {
