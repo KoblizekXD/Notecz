@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronsUpDown, PlusIcon, Check, Menu } from 'lucide-react';
+import { ChevronsUpDown, PlusIcon, Check, Menu, UserIcon } from 'lucide-react';
 
 import * as React from 'react';
 
@@ -16,6 +16,16 @@ import {
 } from '@/components/ui/drawer';
 
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+
+import {
   Command,
   CommandGroup,
   CommandItem,
@@ -26,6 +36,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { MenubarSeparator } from '@/components/ui/menubar';
@@ -43,15 +54,29 @@ const noteTypes = [
 
 const filters = ['Vše', 'Oblíbené', 'Rozpracované', 'Soukromé', 'Textové poznámky', 'Myšlenkové mapy', 'Dokumenty']
 
-function NavMenu() {
+function NavMenu({ iconUrl }: { iconUrl?: string }) {
   return (
-    <div className="border-b py-2">
-      <div className="max-w-72 ml-2 mr-2 py-1 items-center gap-x-2 cursor-pointer flex border rounded min-w-48 px-2">
+    <div className="border-b flex py-2 px-2">
+      <div className="max-w-72 mr-2 py-1 items-center gap-x-2 cursor-pointer flex border rounded min-w-48 px-2">
         Hledat...
         <kbd className="flex ml-auto justify-center border-slate-800 px-1 border rounded">
           ⌘K
         </kbd>
       </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Avatar className='ml-auto cursor-pointer'>
+            <AvatarImage src={iconUrl} />
+            <AvatarFallback>
+              <UserIcon className='stroke-black' />
+            </AvatarFallback>
+          </Avatar>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+        <DropdownMenuItem>Nastavení</DropdownMenuItem>
+          <DropdownMenuItem>Odhlásit se</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
@@ -100,7 +125,7 @@ function SideBar({ onSelect }: { onSelect: (selected: string) => void }) {
   const [shown, setShown] = React.useState(true);
 
   return (
-    <div className={`h-full gap-y-8 flex flex-col ease-in-out transition-[width] duration-300 overflow-hidden ${!shown ? 'w-0' : 'w-56 border-r p-4'}`}>
+    <div className={`h-full w-0 gap-y-8 flex flex-col ease-in-out transition-[width] duration-300 overflow-hidden ${!shown ? 'w-0' : 'sm:w-56 border-r p-4'}`}>
       <div className='flex gap-x-12 justify-between items-center'>
         <h1 className='font-semibold text-lg'>Vy</h1>
         <Button onClick={() => setShown(false)} size={'icon'}>
