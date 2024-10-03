@@ -61,33 +61,40 @@ export const user = new Elysia({ prefix: '/user' })
       },
     },
   )
-  .get('/me', async ({ authManager }) => {
-    const user = await authManager.getAccessingUser();
-    
-    if (!user) return error('Unauthorized');
+  .get(
+    '/me',
+    async ({ authManager }) => {
+      const user = await authManager.getAccessingUser();
 
-    const notes = await prisma.note.findMany({
-      where: {
-        authorId: user.id
-      }
-    })
+      if (!user) return error('Unauthorized');
 
-    const { password, permissions, ...userWithoutSensitiveFields } = user;
-    return { ...userWithoutSensitiveFields, notes };
-  }, {
-    detail: {
-      tags: ['User'],
-      description: 'Returns information about the currently authenticated user',
-      responses: {
-        200: {
-          description: 'Request was successful, the response body will contain information about the user and their notes',
+      const notes = await prisma.note.findMany({
+        where: {
+          authorId: user.id,
         },
-        401: {
-          description: 'User is not authenticated, the response body will contain an error message',
-        }
-      }
-    }
-  })
+      });
+
+      const { password, permissions, ...userWithoutSensitiveFields } = user;
+      return { ...userWithoutSensitiveFields, notes };
+    },
+    {
+      detail: {
+        tags: ['User'],
+        description:
+          'Returns information about the currently authenticated user',
+        responses: {
+          200: {
+            description:
+              'Request was successful, the response body will contain information about the user and their notes',
+          },
+          401: {
+            description:
+              'User is not authenticated, the response body will contain an error message',
+          },
+        },
+      },
+    },
+  )
   .get(
     '/:id/notes',
     async ({ params }) => {

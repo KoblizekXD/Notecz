@@ -1,49 +1,60 @@
 'use client';
 
-import { ChevronsUpDown, PlusIcon, Check, Menu, UserIcon } from 'lucide-react';
+import { Check, ChevronsUpDown, Menu, PlusIcon, UserIcon } from 'lucide-react';
 
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
+  Drawer,
+  DrawerClose,
   DrawerContent,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-  Drawer,
-  DrawerFooter,
-  DrawerClose,
 } from '@/components/ui/drawer';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu';
 
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Command,
   CommandGroup,
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { Input } from '@/components/ui/input';
+import { MenubarSeparator } from '@/components/ui/menubar';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { elysia } from '@/lib/util';
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
-import { MenubarSeparator } from '@/components/ui/menubar';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { elysia, validateRequest } from '@/lib/util';
 import { treaty } from '@elysiajs/eden';
 import { Note } from '@prisma/client';
+import { useRouter } from 'next/navigation';
+import { CheckboxItem } from '@radix-ui/react-dropdown-menu';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const noteTypes = [
   { value: 'note', label: 'Klasická poznámka' },
@@ -52,9 +63,20 @@ const noteTypes = [
   { value: 'notes', label: 'Skupina poznámek' },
 ];
 
-const filters = ['Vše', 'Oblíbené', 'Rozpracované', 'Soukromé', 'Textové poznámky', 'Myšlenkové mapy', 'Dokumenty']
+const filters = [
+  'Vše',
+  'Oblíbené',
+  'Rozpracované',
+  'Soukromé',
+  'Textové poznámky',
+  'Myšlenkové mapy',
+  'Dokumenty',
+];
 
 function NavMenu({ iconUrl }: { iconUrl?: string }) {
+  const router = useRouter();
+  const [logoutAll, setLogoutAll] = React.useState(false);
+
   return (
     <div className="border-b flex py-2 px-2">
       <div className="max-w-72 mr-2 py-1 items-center gap-x-2 cursor-pointer flex border rounded min-w-48 px-2">
@@ -63,20 +85,46 @@ function NavMenu({ iconUrl }: { iconUrl?: string }) {
           ⌘K
         </kbd>
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Avatar className='ml-auto cursor-pointer'>
-            <AvatarImage src={iconUrl} />
-            <AvatarFallback>
-              <UserIcon className='stroke-black' />
-            </AvatarFallback>
-          </Avatar>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-        <DropdownMenuItem>Nastavení</DropdownMenuItem>
-          <DropdownMenuItem>Odhlásit se</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <AlertDialog>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Avatar className="ml-auto cursor-pointer">
+              <AvatarImage src={iconUrl} />
+              <AvatarFallback>
+                <UserIcon className="stroke-black" />
+              </AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Nastavení</DropdownMenuItem>
+            <AlertDialogTrigger>
+              <DropdownMenuItem>Odhlásit se</DropdownMenuItem>
+            </AlertDialogTrigger>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <AlertDialogContent className='bg-black'>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Jsi si jist, že se chceš odhlásit?
+            </AlertDialogTitle>
+            <AlertDialogDescription className='flex items-center gap-x-4'>
+              <Checkbox onCheckedChange={c => {
+                if (c) {
+                  setLogoutAll(true);
+                } else {
+                  setLogoutAll(false);
+                }
+              }} /> Můžeš se také odhlásit ze všech zařízení.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Zrušit</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              router.push(`/signout${logoutAll ? '?all=true' : ''}`);
+            }}>Odhlásit se</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -92,61 +140,87 @@ function getPartOfDay(): 'ráno' | 'odpoledne' | 'večer' {
   }
 }
 
-function SideBarItem({ children, onSelect, selected }: { selected: boolean; children: React.ReactNode; onSelect?: () => void }) {
-
+function SideBarItem({
+  children,
+  onSelect,
+  selected,
+}: {
+  selected: boolean;
+  children: React.ReactNode;
+  onSelect?: () => void;
+}) {
   return (
-    <div className={`select-none ${selected && 'font-bold'}`} onClick={() => {
-      if (onSelect) onSelect();
-    }}>
+    <div
+      className={`select-none ${selected && 'font-bold'}`}
+      onClick={() => {
+        if (onSelect) onSelect();
+      }}
+    >
       {children}
     </div>
   );
 }
 
-function SideBarListing({ items, onSelect }: { items: string[], onSelect: (selected: string) => void }) {
+function SideBarListing({
+  items,
+  onSelect,
+}: {
+  items: string[];
+  onSelect: (selected: string) => void;
+}) {
   const [selected, setSelected] = React.useState(0);
   return (
-    <div className='flex-1 flex-col flex gap-y-2'>
+    <div className="flex-1 flex-col flex gap-y-2">
       {items.map((item, i) => {
         if (item === 'separator') {
           return <MenubarSeparator key={i} />;
         }
-        return <SideBarItem onSelect={() => {
-          setSelected(i);
-          onSelect(item);
-        }} selected={i == selected} key={i}>{item}</SideBarItem>
+        return (
+          <SideBarItem
+            onSelect={() => {
+              setSelected(i);
+              onSelect(item);
+            }}
+            selected={i == selected}
+            key={i}
+          >
+            {item}
+          </SideBarItem>
+        );
       })}
     </div>
   );
 }
 
 function SideBar({ onSelect }: { onSelect: (selected: string) => void }) {
-
   const [shown, setShown] = React.useState(true);
 
   return (
-    <div className={`h-full w-0 gap-y-8 flex flex-col ease-in-out transition-[width] duration-300 overflow-hidden ${!shown ? 'w-0' : 'sm:w-56 border-r p-4'}`}>
-      <div className='flex gap-x-12 justify-between items-center'>
-        <h1 className='font-semibold text-lg'>Vy</h1>
+    <div
+      className={`h-full w-0 gap-y-8 flex flex-col ease-in-out transition-[width] duration-300 overflow-hidden ${!shown ? 'w-0' : 'sm:w-56 border-r p-4'}`}
+    >
+      <div className="flex gap-x-12 justify-between items-center">
+        <h1 className="font-semibold text-lg">Vy</h1>
         <Button onClick={() => setShown(false)} size={'icon'}>
           <Menu />
         </Button>
       </div>
-      <SideBarListing onSelect={onSelect} items={filters.toSpliced(4, 0, 'separator')} />
+      <SideBarListing
+        onSelect={onSelect}
+        items={filters.toSpliced(4, 0, 'separator')}
+      />
     </div>
   );
 }
 
 function createNotePreview(note: Note) {
   return (
-      <Card key={note.id} className='w-48'>
-        <CardHeader>
-          <CardTitle className='text-lg'>{note.title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {note.content?.substring(0, 100) + '...'}
-        </CardContent>
-      </Card>
+    <Card key={note.id} className="w-48">
+      <CardHeader>
+        <CardTitle className="text-lg">{note.title}</CardTitle>
+      </CardHeader>
+      <CardContent>{note.content?.substring(0, 100) + '...'}</CardContent>
+    </Card>
   );
 }
 
@@ -167,24 +241,24 @@ export function HomePage({ id }: { id: string }) {
       setUser(data);
       setNotes(data!!.notes.map((note: Note) => createNotePreview(note)));
       if (notes.length === 0) {
-        setNotes([ 
-          <Card key={0} className='bg-transparent w-48 border-dashed h-64'>
-              <CardContent className='text-white p-4 flex-col gap-y-8 flex justify-center text-center items-center'>
+        setNotes([
+          <Card key={0} className="bg-transparent w-48 border-dashed h-64">
+            <CardContent className="text-white p-4 flex-col gap-y-8 flex justify-center text-center items-center">
               <p>Ještě nemáš žádné poznámky, vytvoř novou kliknutím na plus!</p>
               <div>
                 <PlusIcon />
               </div>
             </CardContent>
-          </Card>
+          </Card>,
         ]);
       }
-    }
+    };
 
     fetchUser();
   }, []);
 
   return (
-    <main className='h-screen flex flex-col'>
+    <main className="h-screen flex flex-col">
       <Drawer>
         <DrawerTrigger asChild>
           <Button
@@ -195,7 +269,7 @@ export function HomePage({ id }: { id: string }) {
             <PlusIcon className="fill-[url(#MyGradient)]" />
           </Button>
         </DrawerTrigger>
-        <DrawerContent className='bg-black'>
+        <DrawerContent className="bg-black">
           <div className="mx-auto flex gap-y-4 flex-col w-full max-w-sm">
             <DrawerHeader>
               <DrawerTitle className="text-center">
@@ -260,16 +334,18 @@ export function HomePage({ id }: { id: string }) {
         </DrawerContent>
       </Drawer>
       <NavMenu />
-      <div className='flex flex-1'>
-        <SideBar onSelect={item => setActiveFilter(item)} />
-        <div className='m-4 flex flex-1 flex-col'>
-          <h1 className='font-extrabold text-3xl'>Dobr{dayPart === 'večer' ? 'ý' : 'é'} {dayPart},</h1>
-          <h2 className='font-semibold text-2xl'>{user.username || 'Načítání...'}</h2>
-          <div className='flex-1 pt-28 flex flex-col gap-y-4'>
-            <h3 className='text-xl'>Tvoje poznámky ({activeFilter})</h3>
-            <div className='flex gap-x-4'>
-              {...notes}
-            </div>
+      <div className="flex flex-1">
+        <SideBar onSelect={(item) => setActiveFilter(item)} />
+        <div className="m-4 flex flex-1 flex-col">
+          <h1 className="font-extrabold text-3xl">
+            Dobr{dayPart === 'večer' ? 'ý' : 'é'} {dayPart},
+          </h1>
+          <h2 className="font-semibold text-2xl">
+            {user.username || 'Načítání...'}
+          </h2>
+          <div className="flex-1 pt-28 flex flex-col gap-y-4">
+            <h3 className="text-xl">Tvoje poznámky ({activeFilter})</h3>
+            <div className="flex gap-x-4">{...notes}</div>
           </div>
         </div>
       </div>

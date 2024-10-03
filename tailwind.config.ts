@@ -58,8 +58,8 @@ const config: Config = {
       },
     },
     transitionProperty: {
-      'width': 'width'
-    }
+      width: 'width',
+    },
   },
   plugins: [require('tailwindcss-animate')],
 };
