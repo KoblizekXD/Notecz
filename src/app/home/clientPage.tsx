@@ -51,7 +51,7 @@ import {
 import { elysia } from '@/lib/util';
 import { cn } from '@/lib/utils';
 import { treaty } from '@elysiajs/eden';
-import { Note } from '@prisma/client';
+import { DisplayFilter, Note, NoteType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { CheckboxItem } from '@radix-ui/react-dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -63,15 +63,15 @@ const noteTypes = [
   { value: 'notes', label: 'Skupina poznámek' },
 ];
 
-const filters = [
-  'Vše',
-  'Oblíbené',
-  'Rozpracované',
-  'Soukromé',
-  'Textové poznámky',
-  'Myšlenkové mapy',
-  'Dokumenty',
-];
+const filters2 = {
+  Vše: DisplayFilter.ALL,
+  Oblíbené: DisplayFilter.FAVORITES,
+  Rozpracované: DisplayFilter.IN_PROGRESS,
+  Soukromé: DisplayFilter.PRIVATE,
+  'Textové poznámky': NoteType.TEXT,
+  'Myšlenkové mapy': NoteType.MINDMAP,
+  Dokumenty: NoteType.DOCUMENT,
+};
 
 function NavMenu({ iconUrl }: { iconUrl?: string }) {
   const router = useRouter();
@@ -102,26 +102,33 @@ function NavMenu({ iconUrl }: { iconUrl?: string }) {
             </AlertDialogTrigger>
           </DropdownMenuContent>
         </DropdownMenu>
-        <AlertDialogContent className='bg-black'>
+        <AlertDialogContent className="bg-black">
           <AlertDialogHeader>
             <AlertDialogTitle>
               Jsi si jist, že se chceš odhlásit?
             </AlertDialogTitle>
-            <AlertDialogDescription className='flex items-center gap-x-4'>
-              <Checkbox onCheckedChange={c => {
-                if (c) {
-                  setLogoutAll(true);
-                } else {
-                  setLogoutAll(false);
-                }
-              }} /> Můžeš se také odhlásit ze všech zařízení.
+            <AlertDialogDescription className="flex items-center gap-x-4">
+              <Checkbox
+                onCheckedChange={(c) => {
+                  if (c) {
+                    setLogoutAll(true);
+                  } else {
+                    setLogoutAll(false);
+                  }
+                }}
+              />{' '}
+              Můžeš se také odhlásit ze všech zařízení.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Zrušit</AlertDialogCancel>
-            <AlertDialogAction onClick={() => {
-              router.push(`/signout${logoutAll ? '?all=true' : ''}`);
-            }}>Odhlásit se</AlertDialogAction>
+            <AlertDialogAction
+              onClick={() => {
+                router.push(`/signout${logoutAll ? '?all=true' : ''}`);
+              }}
+            >
+              Odhlásit se
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -207,7 +214,7 @@ function SideBar({ onSelect }: { onSelect: (selected: string) => void }) {
       </div>
       <SideBarListing
         onSelect={onSelect}
-        items={filters.toSpliced(4, 0, 'separator')}
+        items={Object.keys(filters2).toSpliced(4, 0, 'separator')}
       />
     </div>
   );
@@ -226,10 +233,10 @@ function createNotePreview(note: Note) {
 
 export function HomePage({ id }: { id: string }) {
   const [open, setOpen] = React.useState(false);
-  const [activeFilter, setActiveFilter] = React.useState(filters[0]);
+  const [activeFilter, setActiveFilter] = React.useState<string>(filters2.Vše);
   const [value, setValue] = React.useState('');
   const [user, setUser] = React.useState<any>({});
-  const [notes, setNotes] = React.useState<React.ReactNode[]>([]);
+  const [notes, setNotes] = React.useState<Note[]>([]);
 
   const dayPart = getPartOfDay();
 
@@ -239,19 +246,7 @@ export function HomePage({ id }: { id: string }) {
     const fetchUser = async () => {
       const data = (await t.api.user.me.get()).data;
       setUser(data);
-      setNotes(data!!.notes.map((note: Note) => createNotePreview(note)));
-      if (notes.length === 0) {
-        setNotes([
-          <Card key={0} className="bg-transparent w-48 border-dashed h-64">
-            <CardContent className="text-white p-4 flex-col gap-y-8 flex justify-center text-center items-center">
-              <p>Ještě nemáš žádné poznámky, vytvoř novou kliknutím na plus!</p>
-              <div>
-                <PlusIcon />
-              </div>
-            </CardContent>
-          </Card>,
-        ]);
-      }
+      setNotes(data!!.notes);
     };
 
     fetchUser();
@@ -335,7 +330,11 @@ export function HomePage({ id }: { id: string }) {
       </Drawer>
       <NavMenu />
       <div className="flex flex-1">
-        <SideBar onSelect={(item) => setActiveFilter(item)} />
+        <SideBar
+          onSelect={(item) =>
+            setActiveFilter(filters2[item as keyof typeof filters2] as string)
+          }
+        />
         <div className="m-4 flex flex-1 flex-col">
           <h1 className="font-extrabold text-3xl">
             Dobr{dayPart === 'večer' ? 'ý' : 'é'} {dayPart},
@@ -344,8 +343,41 @@ export function HomePage({ id }: { id: string }) {
             {user.username || 'Načítání...'}
           </h2>
           <div className="flex-1 pt-28 flex flex-col gap-y-4">
-            <h3 className="text-xl">Tvoje poznámky ({activeFilter})</h3>
-            <div className="flex gap-x-4">{...notes}</div>
+            <h3 className="text-xl">
+              Tvoje poznámky (
+              {Object.keys(filters2).find(
+                (f) => filters2[f as keyof typeof filters2] === activeFilter,
+              )}
+              )
+            </h3>
+            <div className="flex gap-x-4">
+              {notes.length > 0 ? (
+                notes
+                  .filter(
+                    (note) =>
+                      note.type.toString() === activeFilter ||
+                      note.filters
+                        .map((f) => f.toString())
+                        .includes(activeFilter),
+                  )
+                  .map(createNotePreview)
+              ) : (
+                <Card
+                  key={0}
+                  className="bg-transparent w-48 border-dashed h-64"
+                >
+                  <CardContent className="text-white p-4 flex-col gap-y-8 flex justify-center text-center items-center">
+                    <p>
+                      Ještě nemáš žádné poznámky, vytvoř novou kliknutím na
+                      plus!
+                    </p>
+                    <div>
+                      <PlusIcon />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
         </div>
       </div>

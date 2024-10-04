@@ -20,7 +20,6 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 
 export function SignInForm() {
-
   const router = useRouter();
 
   const typ = t.Object({
@@ -78,7 +77,7 @@ export function SignInForm() {
             <FormItem>
               <FormLabel>Heslo</FormLabel>
               <FormControl>
-                <Input type='password' placeholder="Tvoje heslo" {...field} />
+                <Input type="password" placeholder="Tvoje heslo" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
