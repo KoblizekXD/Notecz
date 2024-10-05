@@ -53,10 +53,9 @@ import { cn } from '@/lib/utils';
 import { treaty } from '@elysiajs/eden';
 import { DisplayFilter, Note, NoteType } from '@prisma/client';
 import { useRouter } from 'next/navigation';
-import { CheckboxItem } from '@radix-ui/react-dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 
-const noteTypes = [
+export const noteTypes = [
   { value: 'note', label: 'Klasická poznámka' },
   { value: 'mind_map', label: 'Myšlenková mapa' },
   { value: 'document', label: 'Dokument' },
@@ -79,7 +78,7 @@ function NavMenu({ iconUrl }: { iconUrl?: string }) {
 
   return (
     <div className="border-b flex py-2 px-2">
-      <div className="max-w-72 mr-2 py-1 items-center gap-x-2 cursor-pointer flex border rounded min-w-48 px-2">
+      <div className="sm:max-w-52 mr-2 py-1 duration-700 flex-1 items-center gap-x-2 cursor-pointer flex border rounded px-2">
         Hledat...
         <kbd className="flex ml-auto justify-center border-slate-800 px-1 border rounded">
           ⌘K
