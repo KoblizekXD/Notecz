@@ -92,7 +92,11 @@ export function SignUpForm() {
             <FormItem>
               <FormLabel>Heslo</FormLabel>
               <FormControl>
-                <Input placeholder="Něco silného..." {...field} />
+                <Input
+                  type="password"
+                  placeholder="Něco silného..."
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

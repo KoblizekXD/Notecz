@@ -17,8 +17,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
 
 export function SignInForm() {
+  const router = useRouter();
+
   const typ = t.Object({
     email: t.String({ format: 'email' }),
     password: t.String(),
@@ -33,6 +36,8 @@ export function SignInForm() {
 
     if (resp.status === 409) {
       toast.error('Email nebo uživatelské jméno je již zabrané!');
+    } else if (resp.status === 200) {
+      router.push('/home');
     }
   };
 
@@ -72,7 +77,7 @@ export function SignInForm() {
             <FormItem>
               <FormLabel>Heslo</FormLabel>
               <FormControl>
-                <Input placeholder="Tvoje heslo" {...field} />
+                <Input type="password" placeholder="Tvoje heslo" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

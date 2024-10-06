@@ -58,7 +58,11 @@ const components: { title: string; href: string; description: string }[] = [
 ];
 
 export default function Home() {
-  return <React.Suspense><HomePage /></React.Suspense>
+  return (
+    <React.Suspense>
+      <HomePage />
+    </React.Suspense>
+  );
 }
 
 function HomePage() {

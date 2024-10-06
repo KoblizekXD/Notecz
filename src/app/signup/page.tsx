@@ -11,7 +11,7 @@ export default async function SignUp() {
 
   if (cookie && (await lucia.validateSession(cookie.value)).session) {
     logger.info(`User is already signed in, redirecting to /app`);
-    redirect('/app');
+    redirect('/home');
   }
 
   return (
